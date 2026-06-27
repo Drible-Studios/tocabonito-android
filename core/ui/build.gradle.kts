@@ -10,6 +10,7 @@ android {
 dependencies {
     implementation("javax.inject:javax.inject:1")
     implementation(libs.compose.icons.extended)
+    implementation(libs.compose.viewmodel)
     implementation(libs.coil.compose)
     implementation(libs.coil.network.ktor)
 
