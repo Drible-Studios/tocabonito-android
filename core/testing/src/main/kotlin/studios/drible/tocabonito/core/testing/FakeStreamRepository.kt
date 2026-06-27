@@ -8,6 +8,7 @@ import studios.drible.tocabonito.core.domain.repository.StreamRepository
 class FakeStreamRepository : StreamRepository {
     var streamsResult: List<StreamOption> = emptyList()
     var resolveResult: StreamLink? = null
+    var transcodeResult: StreamLink? = null
     var shouldThrow: Exception? = null
 
     override suspend fun availableStreams(
@@ -23,5 +24,10 @@ class FakeStreamRepository : StreamRepository {
     override suspend fun resolveStream(option: StreamOption): StreamLink {
         shouldThrow?.let { throw it }
         return resolveResult ?: throw IllegalStateException("No resolve result configured")
+    }
+
+    override suspend fun resolveTranscode(option: StreamOption): StreamLink {
+        shouldThrow?.let { throw it }
+        return transcodeResult ?: throw IllegalStateException("No transcode result configured")
     }
 }
