@@ -39,7 +39,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.PlayerView
+import android.view.SurfaceView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -143,16 +143,11 @@ fun PlayerScreen(
                 }
             },
     ) {
-        // Video surface using AndroidView + PlayerView (classic approach; PlayerView is in media3-exoplayer)
+        // Video surface using SurfaceView; avoids media3-ui dependency (SSL proxy issue)
         AndroidView(
             factory = { ctx ->
-                PlayerView(ctx).apply {
-                    useController = false
-                    layoutParams = android.view.ViewGroup.LayoutParams(
-                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                    )
-                    this.player = player
+                SurfaceView(ctx).also { surfaceView ->
+                    player.setVideoSurfaceView(surfaceView)
                 }
             },
             modifier = Modifier.fillMaxSize(),
