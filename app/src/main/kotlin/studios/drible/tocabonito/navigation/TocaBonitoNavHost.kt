@@ -1,15 +1,12 @@
 package studios.drible.tocabonito.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import studios.drible.tocabonito.core.ui.theme.LocalThemePalette
+import studios.drible.tocabonito.feature.catalog.catalogGraph
+import studios.drible.tocabonito.feature.downloads.downloadsGraph
+import studios.drible.tocabonito.feature.mylist.myListGraph
 import studios.drible.tocabonito.feature.settings.settingsGraph
 
 @Composable
@@ -22,25 +19,9 @@ fun TocaBonitoNavHost(
         startDestination = TopLevelDestination.HOME.route,
         modifier = modifier,
     ) {
-        TopLevelDestination.entries.forEach { destination ->
-            composable(destination.route) {
-                PlaceholderScreen(label = destination.label)
-            }
-        }
+        catalogGraph(onItemClick = { /* TODO: navigate to detail */ })
+        downloadsGraph()
+        myListGraph()
         settingsGraph(navController)
-    }
-}
-
-@Composable
-private fun PlaceholderScreen(label: String) {
-    val palette = LocalThemePalette.current
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = "Coming soon — $label",
-            color = palette.textPrimary,
-        )
     }
 }
