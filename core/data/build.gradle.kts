@@ -38,8 +38,13 @@ dependencies {
     testImplementation(project(":core:testing"))
     testImplementation(libs.junit5.api)
     testRuntimeOnly(libs.junit5.engine)
+    testRuntimeOnly(libs.junit5.launcher)
     testImplementation(libs.turbine)
     testImplementation(libs.coroutines.test)
+    testImplementation(libs.kotest.runner)
     testImplementation(libs.kotest.assertions)
+    testImplementation(libs.kotest.property)
     testImplementation(libs.room.testing)
 }
+
+tasks.withType<Test> { useJUnitPlatform() }
