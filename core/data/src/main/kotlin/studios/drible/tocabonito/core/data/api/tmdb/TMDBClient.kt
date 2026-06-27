@@ -3,6 +3,7 @@ package studios.drible.tocabonito.core.data.api.tmdb
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import studios.drible.tocabonito.core.domain.model.Genre
 import studios.drible.tocabonito.core.domain.model.MediaItem
@@ -16,14 +17,14 @@ class TMDBClient(
 
     suspend fun trending(): List<MediaItem> {
         val response: TMDBPageResponse = httpClient.get("$baseUrl/trending/all/week") {
-            parameter("api_key", apiKey)
+            header("Authorization", "Bearer $apiKey")
         }.body()
         return response.results.map { it.toDomain() }
     }
 
     suspend fun search(query: String): List<MediaItem> {
         val response: TMDBPageResponse = httpClient.get("$baseUrl/search/multi") {
-            parameter("api_key", apiKey)
+            header("Authorization", "Bearer $apiKey")
             parameter("query", query)
         }.body()
         return response.results.map { it.toDomain() }
@@ -31,7 +32,7 @@ class TMDBClient(
 
     suspend fun details(id: String, type: String): MediaItem {
         val response: TMDBMovieDetail = httpClient.get("$baseUrl/movie/$id") {
-            parameter("api_key", apiKey)
+            header("Authorization", "Bearer $apiKey")
         }.body()
         return response.toDomain()
     }
@@ -39,7 +40,7 @@ class TMDBClient(
     suspend fun popular(type: String, page: Int = 1): List<MediaItem> {
         val endpoint = if (type == "movie") "movie/popular" else "tv/popular"
         val response: TMDBPageResponse = httpClient.get("$baseUrl/$endpoint") {
-            parameter("api_key", apiKey)
+            header("Authorization", "Bearer $apiKey")
             parameter("page", page)
         }.body()
         return response.results.map { it.toDomain() }
@@ -48,7 +49,7 @@ class TMDBClient(
     suspend fun genres(type: String): List<Genre> {
         val endpoint = if (type == "movie") "genre/movie/list" else "genre/tv/list"
         val response: TMDBGenreListResponse = httpClient.get("$baseUrl/$endpoint") {
-            parameter("api_key", apiKey)
+            header("Authorization", "Bearer $apiKey")
         }.body()
         return response.genres.map { Genre(id = it.id, name = it.name) }
     }
@@ -61,7 +62,7 @@ class TMDBClient(
     ): List<MediaItem> {
         val endpoint = if (type == "movie") "discover/movie" else "discover/tv"
         val response: TMDBPageResponse = httpClient.get("$baseUrl/$endpoint") {
-            parameter("api_key", apiKey)
+            header("Authorization", "Bearer $apiKey")
             parameter("with_genres", genreId)
             parameter("page", page)
             params.forEach { (k, v) -> parameter(k, v) }

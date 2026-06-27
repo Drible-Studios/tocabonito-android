@@ -83,7 +83,7 @@ fun HomeScreen(
                     ) {
                         items(s.trending, key = { it.id }) { item ->
                             PosterCard(
-                                posterUrl = item.posterPath,
+                                posterUrl = item.posterUrl,
                                 contentDescription = item.title,
                                 onClick = { onItemClick(item) },
                             )
@@ -110,7 +110,7 @@ fun HomeScreen(
                         ) {
                             items(s.continueWatching, key = { it.id }) { progress ->
                                 PosterCard(
-                                    posterUrl = progress.mediaItem.posterPath,
+                                    posterUrl = progress.mediaItem.posterUrl,
                                     contentDescription = progress.mediaItem.title,
                                     onClick = { onItemClick(progress.mediaItem) },
                                 )
