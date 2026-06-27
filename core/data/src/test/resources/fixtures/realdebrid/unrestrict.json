@@ -1,0 +1,12 @@
+{
+  "id": "ABCDEF123",
+  "filename": "Movie.2024.1080p.BluRay.x264.mkv",
+  "filesize": 4500000000,
+  "link": "https://real-debrid.com/d/ABCDEF123",
+  "host": "real-debrid.com",
+  "chunks": 16,
+  "alternative": [
+    { "id": "alt1", "filename": "Movie_h264.mp4", "download": "https://real-debrid.com/d/alt1_h264" },
+    { "id": "alt2", "filename": "Movie_h264_mobile.mp4", "download": "https://real-debrid.com/d/alt2_mobile" }
+  ]
+}

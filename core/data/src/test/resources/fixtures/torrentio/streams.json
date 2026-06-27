@@ -1,0 +1,17 @@
+{
+  "streams": [
+    {
+      "name": "Torrentio\n4K",
+      "title": "Movie.2024.2160p.BluRay.x265.DTS-HD.MA.7.1\n👤 150 💾 45.2 GB\n🇬🇧🇧🇷",
+      "infoHash": "abc123def456789012345678901234567890abcd",
+      "fileIdx": 0,
+      "behaviorHints": { "bingeGroup": "torrentio|2160p" }
+    },
+    {
+      "name": "Torrentio\n1080p",
+      "title": "Movie.2024.1080p.WEB-DL.x264.DDP.5.1\n👤 89 💾 4.5 GB",
+      "infoHash": "def456abc789012345678901234567890abcd1234",
+      "fileIdx": 1
+    }
+  ]
+}
