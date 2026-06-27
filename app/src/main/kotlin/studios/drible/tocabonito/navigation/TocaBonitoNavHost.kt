@@ -9,6 +9,8 @@ import studios.drible.tocabonito.feature.detail.detailGraph
 import studios.drible.tocabonito.feature.detail.detailRoute
 import studios.drible.tocabonito.feature.downloads.downloadsGraph
 import studios.drible.tocabonito.feature.mylist.myListGraph
+import studios.drible.tocabonito.feature.player.navigateToPlayer
+import studios.drible.tocabonito.feature.player.playerGraph
 import studios.drible.tocabonito.feature.settings.settingsGraph
 
 @Composable
@@ -27,9 +29,12 @@ fun TocaBonitoNavHost(
             },
         )
         detailGraph(
-            onNavigateToPlayer = { _, _ -> /* player not implemented yet */ },
+            onNavigateToPlayer = { mediaId, streamUrl ->
+                navController.navigateToPlayer(mediaId, streamUrl)
+            },
             onBack = { navController.popBackStack() },
         )
+        playerGraph(onBack = { navController.popBackStack() })
         downloadsGraph()
         myListGraph()
         settingsGraph(navController)
