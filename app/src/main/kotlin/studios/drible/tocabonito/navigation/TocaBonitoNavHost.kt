@@ -8,7 +8,7 @@ import studios.drible.tocabonito.feature.catalog.catalogGraph
 import studios.drible.tocabonito.feature.detail.detailGraph
 import studios.drible.tocabonito.feature.detail.detailRoute
 import studios.drible.tocabonito.feature.downloads.downloadsGraph
-import studios.drible.tocabonito.feature.mylist.myListGraph
+import studios.drible.tocabonito.feature.mylist.myListScreen
 import studios.drible.tocabonito.feature.player.navigateToPlayer
 import studios.drible.tocabonito.feature.player.playerGraph
 import studios.drible.tocabonito.feature.settings.settingsGraph
@@ -36,7 +36,9 @@ fun TocaBonitoNavHost(
         )
         playerGraph(onBack = { navController.popBackStack() })
         downloadsGraph()
-        myListGraph()
+        myListScreen(onItemClick = { item ->
+            navController.navigate(detailRoute(item.id, item.mediaType.value))
+        })
         settingsGraph(navController)
     }
 }
