@@ -36,8 +36,9 @@ private fun TorrentioStream.toDomain(): StreamOption {
         size = size,
         seeders = seeders,
         metadata = metadata,
-        infoHash = infoHash,
-        fileIndex = fileIdx,
+        infoHash = resolvedInfoHash,
+        fileIndex = resolvedFileIndex,
+        resolverUrl = url,
     )
 }
 

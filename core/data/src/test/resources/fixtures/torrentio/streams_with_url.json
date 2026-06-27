@@ -1,0 +1,17 @@
+{
+  "streams": [
+    {
+      "name": "Torrentio\n1080p",
+      "title": "Movie.2024.1080p.WEB-DL.x264.DDP.5.1\n👤 89 💾 4.5 GB",
+      "infoHash": "aaa111bbb222ccc333ddd444eee555fff666777a",
+      "fileIdx": 2,
+      "url": "https://torrentio.strem.fun/realdebrid/abc123def456789012345678901234567890abcd/0"
+    },
+    {
+      "name": "Torrentio\n720p",
+      "title": "Movie.2024.720p.BluRay.x264\n👤 42 💾 2.1 GB",
+      "infoHash": "bbb222ccc333ddd444eee555fff666777aaa888b",
+      "fileIdx": 0
+    }
+  ]
+}
