@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,13 +27,15 @@ class MainActivity : ComponentActivity() {
             val theme by themeProvider.selectedTheme.collectAsState()
             val palette = theme.palette
 
-            enableEdgeToEdge(
-                statusBarStyle = if (palette.isLight) {
-                    SystemBarStyle.light(0, 0)
-                } else {
-                    SystemBarStyle.dark(0)
-                },
-            )
+            LaunchedEffect(palette.isLight) {
+                enableEdgeToEdge(
+                    statusBarStyle = if (palette.isLight) {
+                        SystemBarStyle.light(0, 0)
+                    } else {
+                        SystemBarStyle.dark(0)
+                    },
+                )
+            }
 
             TocaBonitoTheme(palette = palette) {
                 MainScreen()
