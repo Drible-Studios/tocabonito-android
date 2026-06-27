@@ -3,13 +3,16 @@ package studios.drible.tocabonito.core.ui.theme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
+import javax.inject.Singleton
 
 interface ThemeStore {
     fun load(): String?
     fun save(value: String)
 }
 
-class ThemeProvider(
+@Singleton
+class ThemeProvider @Inject constructor(
     private val store: ThemeStore,
 ) {
     private val _selectedTheme = MutableStateFlow(loadInitial())

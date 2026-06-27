@@ -40,4 +40,5 @@ dependencies {
     implementation(libs.compose.activity)
     implementation(libs.navigation.compose)
     implementation(libs.datastore.preferences)
+    implementation(libs.compose.icons.extended)
 }
