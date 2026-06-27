@@ -10,6 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import studios.drible.tocabonito.core.ui.theme.LocalThemePalette
+import studios.drible.tocabonito.feature.settings.settingsGraph
 
 @Composable
 fun TocaBonitoNavHost(
@@ -26,9 +27,7 @@ fun TocaBonitoNavHost(
                 PlaceholderScreen(label = destination.label)
             }
         }
-        composable("settings") {
-            PlaceholderScreen(label = "Settings")
-        }
+        settingsGraph(navController)
     }
 }
 

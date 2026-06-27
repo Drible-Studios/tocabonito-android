@@ -9,4 +9,5 @@ android {
 dependencies {
     implementation(project(":core:data"))
     implementation(libs.datastore.preferences)
+    implementation(libs.compose.icons.extended)
 }
