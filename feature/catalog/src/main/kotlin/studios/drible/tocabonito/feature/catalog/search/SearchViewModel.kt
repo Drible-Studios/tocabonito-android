@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import studios.drible.tocabonito.core.domain.repository.CatalogRepository
 import studios.drible.tocabonito.core.ui.mvi.MviViewModel
+import studios.drible.tocabonito.core.ui.util.toUserMessage
 import javax.inject.Inject
 
 @OptIn(FlowPreview::class)
@@ -56,7 +57,7 @@ class SearchViewModel @Inject constructor(
                 val results = catalogRepository.search(query)
                 setState { SearchUiState.Success(results = results, query = query) }
             } catch (e: Exception) {
-                setState { SearchUiState.Error(e.message ?: "Unknown error") }
+                setState { SearchUiState.Error(e.toUserMessage()) }
             }
         }
     }

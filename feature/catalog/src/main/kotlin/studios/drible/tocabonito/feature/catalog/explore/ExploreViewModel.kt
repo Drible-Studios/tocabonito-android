@@ -8,6 +8,7 @@ import studios.drible.tocabonito.core.domain.model.MediaType
 import studios.drible.tocabonito.core.domain.model.YearFilter
 import studios.drible.tocabonito.core.domain.repository.CatalogRepository
 import studios.drible.tocabonito.core.ui.mvi.MviViewModel
+import studios.drible.tocabonito.core.ui.util.toUserMessage
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,7 +35,7 @@ class ExploreViewModel @Inject constructor(
                 val genres = catalogRepository.genres(MediaType.MOVIE)
                 setState { ExploreUiState.Success(genres = genres) }
             } catch (e: Exception) {
-                setState { ExploreUiState.Error(e.message ?: "Unknown error") }
+                setState { ExploreUiState.Error(e.toUserMessage()) }
             }
         }
     }
@@ -89,7 +90,7 @@ class ExploreViewModel @Inject constructor(
                 if (current is ExploreUiState.Success) {
                     setState { current.copy(isLoadingMore = false) }
                 } else {
-                    setState { ExploreUiState.Error(e.message ?: "Unknown error") }
+                    setState { ExploreUiState.Error(e.toUserMessage()) }
                 }
             }
         }

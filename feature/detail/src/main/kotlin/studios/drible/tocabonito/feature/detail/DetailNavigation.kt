@@ -4,6 +4,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 
 const val DETAIL_ROUTE = "detail/{mediaId}/{mediaType}"
 
@@ -17,6 +18,7 @@ fun NavGraphBuilder.detailGraph(
             navArgument("mediaId") { type = NavType.StringType },
             navArgument("mediaType") { type = NavType.StringType },
         ),
+        deepLinks = listOf(navDeepLink { uriPattern = "tocabonito://detail/{mediaId}/{mediaType}" }),
     ) {
         DetailScreen(
             onNavigateToPlayer = onNavigateToPlayer,

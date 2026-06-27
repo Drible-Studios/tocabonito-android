@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import studios.drible.tocabonito.core.domain.repository.CatalogRepository
 import studios.drible.tocabonito.core.domain.repository.ProgressRepository
 import studios.drible.tocabonito.core.ui.mvi.MviViewModel
+import studios.drible.tocabonito.core.ui.util.toUserMessage
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,7 +34,7 @@ class HomeViewModel @Inject constructor(
                 val trending = catalogRepository.trending()
                 setState { HomeUiState.Success(trending = trending, continueWatching = emptyList()) }
             } catch (e: Exception) {
-                setState { HomeUiState.Error(e.message ?: "Unknown error") }
+                setState { HomeUiState.Error(e.toUserMessage()) }
             }
         }
     }
