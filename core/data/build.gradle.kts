@@ -35,6 +35,7 @@ dependencies {
     implementation(libs.coroutines.android)
     implementation(libs.serialization.json)
 
+    testImplementation(libs.ktor.client.mock)
     testImplementation(project(":core:testing"))
     testImplementation(libs.junit5.api)
     testRuntimeOnly(libs.junit5.engine)
