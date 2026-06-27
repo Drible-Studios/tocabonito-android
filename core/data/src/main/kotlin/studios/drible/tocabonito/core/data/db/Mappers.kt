@@ -2,8 +2,12 @@ package studios.drible.tocabonito.core.data.db
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import studios.drible.tocabonito.core.data.db.entity.DownloadEntity
 import studios.drible.tocabonito.core.data.db.entity.FavoriteEntity
 import studios.drible.tocabonito.core.data.db.entity.WatchProgressEntity
+import studios.drible.tocabonito.core.domain.model.DownloadItem
+import studios.drible.tocabonito.core.domain.model.DownloadPriority
+import studios.drible.tocabonito.core.domain.model.DownloadState
 import studios.drible.tocabonito.core.domain.model.MediaItem
 import studios.drible.tocabonito.core.domain.model.MediaType
 import studios.drible.tocabonito.core.domain.model.WatchProgress
@@ -73,4 +77,64 @@ fun WatchProgress.toEntity(): WatchProgressEntity = WatchProgressEntity(
     currentTime = currentTime,
     duration = duration,
     lastWatched = lastWatched,
+)
+
+// DownloadEntity <-> DownloadItem
+
+fun DownloadEntity.toDomain(): DownloadItem = DownloadItem(
+    id = id,
+    mediaId = mediaId,
+    episodeId = episodeId,
+    seasonNumber = seasonNumber,
+    episodeNumber = episodeNumber,
+    title = title,
+    posterPath = posterPath,
+    backdropPath = backdropPath,
+    mediaType = if (mediaType == "series") MediaType.SERIES else MediaType.MOVIE,
+    quality = quality,
+    source = source,
+    codec = codec,
+    state = DownloadState.valueOf(state),
+    progress = progress,
+    bytesWritten = bytesWritten,
+    totalBytes = totalBytes,
+    estimatedBytes = estimatedBytes,
+    localFilePath = localFilePath,
+    fileExtension = fileExtension,
+    dateQueued = dateQueued,
+    dateCompleted = dateCompleted,
+    failureCount = failureCount,
+    lastError = lastError,
+    priority = DownloadPriority.entries.firstOrNull { it.value == priority } ?: DownloadPriority.USER_INITIATED,
+    allowedOnCellular = allowedOnCellular,
+    speedBytesPerSecond = speedBytesPerSecond,
+)
+
+fun DownloadItem.toEntity(): DownloadEntity = DownloadEntity(
+    id = id,
+    mediaId = mediaId,
+    episodeId = episodeId,
+    seasonNumber = seasonNumber,
+    episodeNumber = episodeNumber,
+    title = title,
+    posterPath = posterPath,
+    backdropPath = backdropPath,
+    mediaType = mediaType.value,
+    quality = quality,
+    source = source,
+    codec = codec,
+    state = state.name,
+    progress = progress,
+    bytesWritten = bytesWritten,
+    totalBytes = totalBytes,
+    estimatedBytes = estimatedBytes,
+    localFilePath = localFilePath,
+    fileExtension = fileExtension,
+    dateQueued = dateQueued,
+    dateCompleted = dateCompleted,
+    failureCount = failureCount,
+    lastError = lastError,
+    priority = priority.value,
+    allowedOnCellular = allowedOnCellular,
+    speedBytesPerSecond = speedBytesPerSecond,
 )

@@ -6,5 +6,7 @@ import androidx.navigation.compose.composable
 const val DOWNLOADS_ROUTE = "downloads"
 
 fun NavGraphBuilder.downloadsGraph() {
-    composable(DOWNLOADS_ROUTE) { /* placeholder */ }
+    composable(DOWNLOADS_ROUTE) {
+        DownloadsScreen()
+    }
 }

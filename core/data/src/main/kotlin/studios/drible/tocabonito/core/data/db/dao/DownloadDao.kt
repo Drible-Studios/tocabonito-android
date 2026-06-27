@@ -35,4 +35,13 @@ interface DownloadDao {
 
     @Query("SELECT SUM(totalBytes) FROM downloads WHERE state = 'COMPLETED'")
     suspend fun totalStorageUsed(): Long?
+
+    @Query("SELECT * FROM downloads WHERE mediaId = :mediaId AND (episodeId IS NULL AND :episodeId IS NULL OR episodeId = :episodeId) LIMIT 1")
+    suspend fun getByMedia(mediaId: String, episodeId: String?): DownloadEntity?
+
+    @Query("UPDATE downloads SET failureCount = :failureCount, lastError = :lastError WHERE id = :id")
+    suspend fun updateError(id: String, failureCount: Int, lastError: String?)
+
+    @Query("UPDATE downloads SET localFilePath = :localFilePath WHERE id = :id")
+    suspend fun updateLocalPath(id: String, localFilePath: String)
 }
