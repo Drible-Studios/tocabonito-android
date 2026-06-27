@@ -16,6 +16,8 @@ dependencies {
     testRuntimeOnly(libs.junit5.engine)
     testRuntimeOnly(libs.junit5.launcher)
     testImplementation(libs.kotest.assertions)
+    testImplementation(libs.turbine)
+    testImplementation(libs.coroutines.test)
 }
 
 tasks.withType<Test> { useJUnitPlatform() }
