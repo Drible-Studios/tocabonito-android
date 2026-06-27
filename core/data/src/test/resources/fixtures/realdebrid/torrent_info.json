@@ -1,0 +1,19 @@
+{
+  "id": "TORRENT_ABC123",
+  "filename": "Movie.2024.Pack",
+  "hash": "abc123def456789012345678901234567890abcd",
+  "bytes": 9500000000,
+  "host": "real-debrid.com",
+  "split": 40,
+  "progress": 100,
+  "status": "downloaded",
+  "files": [
+    { "id": 1, "path": "/Movie.2024.1080p.BluRay.x264.mkv", "bytes": 4500000000, "selected": 1 },
+    { "id": 2, "path": "/Movie.2024.1080p.BluRay.x264.srt", "bytes": 52000, "selected": 0 },
+    { "id": 3, "path": "/Sample/sample.mkv", "bytes": 80000000, "selected": 0 },
+    { "id": 4, "path": "/Extras/behind_the_scenes.mkv", "bytes": 950000000, "selected": 0 }
+  ],
+  "links": [
+    "https://real-debrid.com/d/LINK_FILE1"
+  ]
+}
