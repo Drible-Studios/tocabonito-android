@@ -1,0 +1,10 @@
+package studios.drible.tocabonito.core.domain.repository
+
+import studios.drible.tocabonito.core.domain.model.MediaType
+import studios.drible.tocabonito.core.domain.model.StreamLink
+import studios.drible.tocabonito.core.domain.model.StreamOption
+
+interface StreamRepository {
+    suspend fun availableStreams(imdbId: String, type: MediaType, season: Int?, episode: Int?): List<StreamOption>
+    suspend fun resolveStream(option: StreamOption): StreamLink
+}
