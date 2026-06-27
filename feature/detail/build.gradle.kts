@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":core:data"))
     implementation(libs.coil.compose)
     implementation(libs.coil.network.ktor)
+    implementation(libs.compose.icons.extended)
 
     testImplementation(libs.junit5.api)
     testRuntimeOnly(libs.junit5.engine)
