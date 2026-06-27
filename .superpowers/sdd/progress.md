@@ -1,18 +1,23 @@
-# Phase 1: Core Domain & Data Layer — Progress Ledger
+# Progress Ledger
 
-## Status: IN PROGRESS
+## Phase 0 — COMPLETE (pushed, issue #2 closed)
+8 commits: 88301b0..cb2b00c. Verified on Android TV emulator.
 
-## Phase 0 (COMPLETE — pushed to origin/main)
-All 8 tasks done. Verified on Android TV emulator. Issue #2 closed.
+## Phase 1 — COMPLETE (pushed, issue #3 closed)
+10 commits: a035f57..a0d66ad. All tests pass (domain + data).
 
-## Phase 1 Tasks
-- Task 1: Domain Entities — Core Types — PENDING
-- Task 2: Domain Entities — Stream Types — PENDING
-- Task 3: Domain Entities — Watch Progress, Downloads, Audio/Subtitle Tracks — PENDING
-- Task 4: Domain Repository Interfaces and Service Protocols — PENDING
-- Task 5: Testing Fakes (:core:testing) — PENDING
-- Task 6: StreamMetadataParser and StreamSorter — PENDING
-- Task 7: Ktor API Clients — TMDB — PENDING
-- Task 8: Ktor API Clients — Torrentio and RealDebrid — PENDING
-- Task 9: Room Database — Entities and DAOs — PENDING
-- Task 10: Repository Implementations — COMPLETE
+## Phase 2 — COMPLETE (pushed, issue #4 closed)
+5 commits: f4c10e1..7ee2aef. Verified on emulator (shimmer, search, tabs).
+
+## Phase 3: Detail & Stream Resolution — IN PROGRESS
+- Task 1: DetailViewModel with Stream Resolution — COMPLETE
+- Task 2: DetailScreen UI — PENDING
+- Task 3: Season/Episode List for Series — PENDING
+- Task 4: Stream Selection Bottom Sheet — PENDING
+- Task 5: Navigation Integration — PENDING
+
+## Phase 4: Video Player — PENDING
+## Phase 5: Favorites & My List — PENDING
+## Phase 6: Downloads — PENDING
+## Phase 7: Cloud Sync & Settings — PENDING
+## Phase 8: Polish & Feature Parity — PENDING
