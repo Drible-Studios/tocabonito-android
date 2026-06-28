@@ -2,8 +2,11 @@ package studios.drible.tocabonito.feature.catalog.home
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import studios.drible.tocabonito.core.domain.model.MediaType
 import studios.drible.tocabonito.core.domain.repository.CatalogRepository
 import studios.drible.tocabonito.core.domain.repository.ProgressRepository
 import studios.drible.tocabonito.core.ui.mvi.MviViewModel
@@ -31,8 +34,22 @@ class HomeViewModel @Inject constructor(
     private fun load() {
         viewModelScope.launch {
             try {
-                val trending = catalogRepository.trending()
-                setState { HomeUiState.Success(trending = trending, continueWatching = emptyList()) }
+                val (trending, popularMovies, popularSeries) = coroutineScope {
+                    val trendingDeferred = async { catalogRepository.trending() }
+                    val moviesDeferred = async { catalogRepository.popular(MediaType.MOVIE) }
+                    val seriesDeferred = async { catalogRepository.popular(MediaType.SERIES) }
+                    Triple(trendingDeferred.await(), moviesDeferred.await(), seriesDeferred.await())
+                }
+                val heroItem = trending.firstOrNull { it.backdropPath != null } ?: trending.firstOrNull()
+                setState {
+                    HomeUiState.Success(
+                        trending = trending,
+                        heroItem = heroItem,
+                        popularMovies = popularMovies,
+                        popularSeries = popularSeries,
+                        continueWatching = emptyList(),
+                    )
+                }
             } catch (e: Exception) {
                 setState { HomeUiState.Error(e.toUserMessage()) }
             }
