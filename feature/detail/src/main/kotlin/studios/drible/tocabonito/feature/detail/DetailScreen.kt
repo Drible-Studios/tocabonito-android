@@ -12,13 +12,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
@@ -138,8 +139,6 @@ private fun DetailContent(
             // Metadata row
             MetadataRow(
                 mediaItem = state.mediaItem,
-                isFavorite = state.isFavorite,
-                onToggleFavorite = onToggleFavorite,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             )
 
@@ -229,6 +228,31 @@ private fun DetailContent(
                                     modifier = Modifier.padding(start = 4.dp),
                                 )
                             }
+                        }
+
+                        Spacer(Modifier.height(8.dp))
+
+                        // My List button
+                        Button(
+                            onClick = onToggleFavorite,
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = palette.surfaceElevated,
+                                contentColor = palette.textPrimary,
+                            ),
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Icon(
+                                imageVector = if (state.isFavorite) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = if (state.isFavorite) "In My List" else "My List",
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 14.sp,
+                            )
                         }
 
                         Spacer(Modifier.height(8.dp))
@@ -372,8 +396,6 @@ private fun BackdropHeader(
 @Composable
 private fun MetadataRow(
     mediaItem: MediaItem,
-    isFavorite: Boolean,
-    onToggleFavorite: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val palette = LocalThemePalette.current
@@ -407,17 +429,6 @@ private fun MetadataRow(
                 text = " %.1f".format(mediaItem.voteAverage),
                 color = palette.textSecondary,
                 fontSize = 14.sp,
-            )
-        }
-
-        Spacer(Modifier.size(16.dp))
-
-        // Favorite button
-        IconButton(onClick = onToggleFavorite) {
-            Icon(
-                imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                tint = if (isFavorite) Color(0xFFEF4444) else palette.textSecondary,
             )
         }
     }
