@@ -56,8 +56,9 @@ class DetailViewModel @Inject constructor(
                 // Load streams and seasons (for series) in parallel
                 val streamsJob = launch {
                     try {
+                        val streamId = mediaItem.imdbId ?: mediaId
                         val streams = streamRepository.availableStreams(
-                            imdbId = mediaId,
+                            imdbId = streamId,
                             type = mediaType,
                             season = null,
                             episode = null,

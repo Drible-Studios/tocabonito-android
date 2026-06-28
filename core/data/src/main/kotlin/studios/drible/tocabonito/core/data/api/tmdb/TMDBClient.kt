@@ -93,6 +93,7 @@ private fun TMDBMediaResult.toDomain(): MediaItem {
 
 private fun TMDBMovieDetail.toDomain(): MediaItem = MediaItem(
     id = id.toString(),
+    imdbId = imdbId,
     title = displayTitle,
     overview = overview,
     posterPath = posterPath,

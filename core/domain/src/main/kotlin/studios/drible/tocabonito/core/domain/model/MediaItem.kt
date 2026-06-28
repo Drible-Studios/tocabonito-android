@@ -10,8 +10,8 @@ data class MediaItem(
     val releaseYear: Int,
     val voteAverage: Double,
     val genreIds: List<Int>,
+    val imdbId: String? = null,
 ) {
-    val imdbId: String get() = id
     val isMovie: Boolean get() = mediaType == MediaType.MOVIE
 
     val posterUrl: String?
