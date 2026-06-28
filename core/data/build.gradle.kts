@@ -45,6 +45,10 @@ dependencies {
     implementation(libs.coroutines.android)
     implementation(libs.serialization.json)
 
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore.ktx)
+
     testImplementation(libs.ktor.client.mock)
     testImplementation(project(":core:testing"))
     testImplementation(libs.junit5.api)
