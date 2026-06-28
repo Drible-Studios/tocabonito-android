@@ -13,6 +13,7 @@ import studios.drible.tocabonito.core.domain.model.MediaType
 import studios.drible.tocabonito.core.domain.repository.CatalogRepository
 import studios.drible.tocabonito.core.domain.repository.FavoritesRepository
 import studios.drible.tocabonito.core.domain.repository.StreamRepository
+import studios.drible.tocabonito.feature.detail.model.StreamFilters
 import javax.inject.Inject
 
 @HiltViewModel
@@ -93,6 +94,7 @@ class DetailViewModel @Inject constructor(
             is DetailIntent.ResolveStream -> resolveStream(intent)
             is DetailIntent.SelectEpisode -> selectEpisode(intent)
             is DetailIntent.DismissResolvedLink -> dismissResolvedLink()
+            is DetailIntent.UpdateFilters -> updateFilters(intent.filters)
         }
     }
 
@@ -138,6 +140,10 @@ class DetailViewModel @Inject constructor(
 
     private fun dismissResolvedLink() {
         updateSuccess { copy(resolvedLink = null) }
+    }
+
+    private fun updateFilters(filters: StreamFilters) {
+        updateSuccess { copy(filters = filters) }
     }
 
     private inline fun updateSuccess(reducer: DetailUiState.Success.() -> DetailUiState.Success) {

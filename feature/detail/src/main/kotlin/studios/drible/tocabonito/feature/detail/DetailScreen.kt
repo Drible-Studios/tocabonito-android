@@ -50,7 +50,9 @@ import studios.drible.tocabonito.core.domain.model.MediaItem
 import studios.drible.tocabonito.core.ui.components.ErrorState
 import studios.drible.tocabonito.core.ui.theme.LocalThemePalette
 import studios.drible.tocabonito.feature.detail.components.SeasonEpisodeList
+import studios.drible.tocabonito.feature.detail.components.StreamFilterChips
 import studios.drible.tocabonito.feature.detail.components.StreamSelectionSheet
+import studios.drible.tocabonito.feature.detail.model.StreamFilters
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,6 +100,7 @@ fun DetailScreen(
                 onEpisodeSelected = { season, episode ->
                     viewModel.onIntent(DetailIntent.SelectEpisode(season, episode))
                 },
+                onFiltersChanged = { viewModel.onIntent(DetailIntent.UpdateFilters(it)) },
                 modifier = modifier,
             )
         }
@@ -112,6 +115,7 @@ private fun DetailContent(
     onToggleFavorite: () -> Unit,
     onStreamSelected: (studios.drible.tocabonito.core.domain.model.StreamOption) -> Unit,
     onEpisodeSelected: (season: Int, episode: Int) -> Unit,
+    onFiltersChanged: (StreamFilters) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val palette = LocalThemePalette.current
@@ -176,18 +180,30 @@ private fun DetailContent(
                 Spacer(Modifier.height(8.dp))
             }
 
+            // Stream filter chips
+            if (state.streams.size > 1) {
+                StreamFilterChips(
+                    filters = state.filters,
+                    availableQualities = state.availableQualities,
+                    availableSources = state.availableSources,
+                    availableLanguages = state.availableLanguages,
+                    onFiltersChanged = onFiltersChanged,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(8.dp))
+            }
+
             // Play / Streams buttons
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                AnimatedVisibility(visible = state.streams.isNotEmpty() || state.isResolvingStream) {
+                AnimatedVisibility(visible = state.filteredStreams.isNotEmpty() || state.isResolvingStream) {
                     Column {
                         Button(
                             onClick = {
-                                if (state.streams.isNotEmpty() && !state.isResolvingStream) {
-                                    // Auto-pick best stream (first = sorted by quality)
-                                    onStreamSelected(state.streams.first())
+                                if (state.filteredStreams.isNotEmpty() && !state.isResolvingStream) {
+                                    onStreamSelected(state.filteredStreams.first())
                                 }
                             },
-                            enabled = !state.isResolvingStream && state.streams.isNotEmpty(),
+                            enabled = !state.isResolvingStream && state.filteredStreams.isNotEmpty(),
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = palette.accent,
@@ -223,7 +239,7 @@ private fun DetailContent(
                             modifier = Modifier.fillMaxWidth(),
                         ) {
                             Text(
-                                text = "Streams (${state.streams.size})",
+                                text = "Streams (${state.filteredStreams.size})",
                                 color = palette.textPrimary,
                             )
                         }
@@ -275,9 +291,9 @@ private fun DetailContent(
     }
 
     // Stream selection bottom sheet
-    if (showStreamSheet && state.streams.isNotEmpty()) {
+    if (showStreamSheet && state.filteredStreams.isNotEmpty()) {
         StreamSelectionSheet(
-            streams = state.streams,
+            streams = state.filteredStreams,
             onStreamSelected = { stream ->
                 showStreamSheet = false
                 onStreamSelected(stream)
