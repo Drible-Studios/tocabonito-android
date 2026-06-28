@@ -26,7 +26,9 @@ dependencies {
     implementation(project(":core:domain"))
 
     implementation(libs.hilt.android)
+    implementation(libs.hilt.work)
     ksp(libs.hilt.compiler)
+    ksp(libs.hilt.work.compiler)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)

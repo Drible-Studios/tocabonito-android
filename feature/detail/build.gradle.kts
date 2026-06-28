@@ -12,6 +12,7 @@ dependencies {
     implementation(libs.coil.network.ktor)
     implementation(libs.compose.icons.extended)
 
+    testImplementation(project(":core:testing"))
     testImplementation(libs.junit5.api)
     testRuntimeOnly(libs.junit5.engine)
     testImplementation(libs.junit5.launcher)

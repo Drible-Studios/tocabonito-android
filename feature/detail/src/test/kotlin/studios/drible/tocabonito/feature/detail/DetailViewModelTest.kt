@@ -3,6 +3,7 @@ package studios.drible.tocabonito.feature.detail
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -13,7 +14,10 @@ import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import studios.drible.tocabonito.core.domain.model.DownloadState
 import studios.drible.tocabonito.core.testing.FakeCatalogRepository
+import studios.drible.tocabonito.core.testing.FakeDownloadEnqueuer
+import studios.drible.tocabonito.core.testing.FakeDownloadRepository
 import studios.drible.tocabonito.core.testing.FakeFavoritesRepository
 import studios.drible.tocabonito.core.testing.FakeStreamRepository
 import studios.drible.tocabonito.core.testing.TestFixtures
@@ -26,6 +30,8 @@ class DetailViewModelTest {
     private val catalogRepo = FakeCatalogRepository()
     private val streamRepo = FakeStreamRepository()
     private val favoritesRepo = FakeFavoritesRepository()
+    private val downloadRepo = FakeDownloadRepository()
+    private val downloadEnqueuer = FakeDownloadEnqueuer()
 
     @BeforeEach
     fun setUp() {
@@ -45,6 +51,8 @@ class DetailViewModelTest {
         catalogRepository = catalogRepo,
         streamRepository = streamRepo,
         favoritesRepository = favoritesRepo,
+        downloadRepository = downloadRepo,
+        downloadEnqueuer = downloadEnqueuer,
     )
 
     @Test
@@ -312,6 +320,168 @@ class DetailViewModelTest {
             val cleared = awaitItem()
             cleared.shouldBeInstanceOf<DetailUiState.Success>()
             (cleared as DetailUiState.Success).filteredStreams.size shouldBe 2
+        }
+    }
+
+    // --- Download tests ---
+
+    @Test
+    fun `download small file resolves and enqueues`() = runTest {
+        val item = TestFixtures.mediaItem(id = "tt123")
+        val option = TestFixtures.streamOption().copy(size = "1.5 GB")
+        val link = TestFixtures.streamLink()
+        catalogRepo.detailsResult = item
+        streamRepo.streamsResult = listOf(option)
+        streamRepo.resolveResult = link
+
+        val vm = createViewModel()
+        vm.state.test {
+            awaitItem().shouldBeInstanceOf<DetailUiState.Loading>()
+            var lastSuccess: DetailUiState.Success? = null
+            while (lastSuccess == null || lastSuccess.isLoadingStreams) {
+                val s = awaitItem()
+                if (s is DetailUiState.Success) lastSuccess = s
+            }
+
+            vm.onIntent(DetailIntent.DownloadStream(option))
+
+            // RESOLVING state
+            val resolving = awaitItem()
+            resolving.shouldBeInstanceOf<DetailUiState.Success>()
+            (resolving as DetailUiState.Success).downloadStates[option.id] shouldBe DownloadState.RESOLVING
+
+            // QUEUED state after resolve + enqueue
+            val queued = awaitItem()
+            queued.shouldBeInstanceOf<DetailUiState.Success>()
+            (queued as DetailUiState.Success).downloadStates[option.id] shouldBe DownloadState.QUEUED
+
+            downloadEnqueuer.enqueuedIds.size shouldBe 1
+        }
+    }
+
+    @Test
+    fun `download large file shows confirmation`() = runTest {
+        val item = TestFixtures.mediaItem(id = "tt123")
+        val option = TestFixtures.streamOption().copy(size = "3.5 GB")
+        catalogRepo.detailsResult = item
+        streamRepo.streamsResult = listOf(option)
+
+        val vm = createViewModel()
+        vm.state.test {
+            awaitItem().shouldBeInstanceOf<DetailUiState.Loading>()
+            var lastSuccess: DetailUiState.Success? = null
+            while (lastSuccess == null || lastSuccess.isLoadingStreams) {
+                val s = awaitItem()
+                if (s is DetailUiState.Success) lastSuccess = s
+            }
+
+            vm.onIntent(DetailIntent.DownloadStream(option))
+
+            val pending = awaitItem()
+            pending.shouldBeInstanceOf<DetailUiState.Success>()
+            (pending as DetailUiState.Success).pendingLargeDownload shouldBe option
+            pending.downloadStates[option.id] shouldBe null
+        }
+    }
+
+    @Test
+    fun `confirm large download proceeds with download`() = runTest {
+        val item = TestFixtures.mediaItem(id = "tt123")
+        val option = TestFixtures.streamOption().copy(size = "3.5 GB")
+        val link = TestFixtures.streamLink()
+        catalogRepo.detailsResult = item
+        streamRepo.streamsResult = listOf(option)
+        streamRepo.resolveResult = link
+
+        val vm = createViewModel()
+        vm.state.test {
+            awaitItem().shouldBeInstanceOf<DetailUiState.Loading>()
+            var lastSuccess: DetailUiState.Success? = null
+            while (lastSuccess == null || lastSuccess.isLoadingStreams) {
+                val s = awaitItem()
+                if (s is DetailUiState.Success) lastSuccess = s
+            }
+
+            vm.onIntent(DetailIntent.DownloadStream(option))
+            awaitItem() // pending large download shown
+
+            vm.onIntent(DetailIntent.ConfirmLargeDownload)
+
+            // pendingLargeDownload cleared
+            val cleared = awaitItem()
+            cleared.shouldBeInstanceOf<DetailUiState.Success>()
+            (cleared as DetailUiState.Success).pendingLargeDownload shouldBe null
+
+            // RESOLVING state set
+            val resolving = awaitItem()
+            resolving.shouldBeInstanceOf<DetailUiState.Success>()
+            (resolving as DetailUiState.Success).downloadStates[option.id] shouldBe DownloadState.RESOLVING
+
+            // QUEUED after resolve + enqueue
+            val queued = awaitItem()
+            queued.shouldBeInstanceOf<DetailUiState.Success>()
+            (queued as DetailUiState.Success).downloadStates[option.id] shouldBe DownloadState.QUEUED
+
+            downloadEnqueuer.enqueuedIds.size shouldBe 1
+        }
+    }
+
+    @Test
+    fun `dismiss large download clears pending`() = runTest {
+        val item = TestFixtures.mediaItem(id = "tt123")
+        val option = TestFixtures.streamOption().copy(size = "3.5 GB")
+        catalogRepo.detailsResult = item
+        streamRepo.streamsResult = listOf(option)
+
+        val vm = createViewModel()
+        vm.state.test {
+            awaitItem().shouldBeInstanceOf<DetailUiState.Loading>()
+            var lastSuccess: DetailUiState.Success? = null
+            while (lastSuccess == null || lastSuccess.isLoadingStreams) {
+                val s = awaitItem()
+                if (s is DetailUiState.Success) lastSuccess = s
+            }
+
+            vm.onIntent(DetailIntent.DownloadStream(option))
+            val pending = awaitItem()
+            (pending as DetailUiState.Success).pendingLargeDownload shouldNotBe null
+
+            vm.onIntent(DetailIntent.DismissLargeDownload)
+            val dismissed = awaitItem()
+            dismissed.shouldBeInstanceOf<DetailUiState.Success>()
+            (dismissed as DetailUiState.Success).pendingLargeDownload shouldBe null
+        }
+    }
+
+    @Test
+    fun `resolve failure sets FAILED download state`() = runTest {
+        val item = TestFixtures.mediaItem(id = "tt123")
+        val option = TestFixtures.streamOption().copy(size = "1.5 GB")
+        catalogRepo.detailsResult = item
+        streamRepo.streamsResult = listOf(option)
+        streamRepo.resolveResult = null // will throw
+
+        val vm = createViewModel()
+        vm.state.test {
+            awaitItem().shouldBeInstanceOf<DetailUiState.Loading>()
+            var lastSuccess: DetailUiState.Success? = null
+            while (lastSuccess == null || lastSuccess.isLoadingStreams) {
+                val s = awaitItem()
+                if (s is DetailUiState.Success) lastSuccess = s
+            }
+
+            vm.onIntent(DetailIntent.DownloadStream(option))
+
+            // RESOLVING state
+            val resolving = awaitItem()
+            (resolving as DetailUiState.Success).downloadStates[option.id] shouldBe DownloadState.RESOLVING
+
+            // FAILED after resolve throws
+            val failed = awaitItem()
+            failed.shouldBeInstanceOf<DetailUiState.Success>()
+            (failed as DetailUiState.Success).downloadStates[option.id] shouldBe DownloadState.FAILED
+
+            downloadEnqueuer.enqueuedIds.size shouldBe 0
         }
     }
 }
