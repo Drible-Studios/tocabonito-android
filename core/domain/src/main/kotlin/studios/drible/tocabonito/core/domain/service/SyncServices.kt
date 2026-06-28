@@ -34,6 +34,10 @@ enum class CloudAccountStatus {
 
 interface CloudAccountProvider {
     suspend fun accountStatus(): CloudAccountStatus
+    val isSignedIn: Flow<Boolean>
+    val displayName: Flow<String?>
+    val currentUid: String?
+    suspend fun signOut()
 }
 
 enum class SyncError {
