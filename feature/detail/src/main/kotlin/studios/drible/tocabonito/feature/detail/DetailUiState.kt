@@ -1,5 +1,6 @@
 package studios.drible.tocabonito.feature.detail
 
+import studios.drible.tocabonito.core.domain.model.DownloadState
 import studios.drible.tocabonito.core.domain.model.Episode
 import studios.drible.tocabonito.core.domain.model.MediaItem
 import studios.drible.tocabonito.core.domain.model.StreamLink
@@ -18,6 +19,8 @@ sealed class DetailUiState {
         val resolvedLink: StreamLink? = null,
         val streamError: String? = null,
         val filters: StreamFilters = StreamFilters.EMPTY,
+        val downloadStates: Map<String, DownloadState> = emptyMap(),
+        val pendingLargeDownload: StreamOption? = null,
     ) : DetailUiState() {
         val filteredStreams: List<StreamOption>
             get() = if (!filters.isActive) streams
@@ -45,4 +48,7 @@ sealed class DetailIntent {
     data class SelectEpisode(val season: Int, val episode: Int) : DetailIntent()
     data object DismissResolvedLink : DetailIntent()
     data class UpdateFilters(val filters: StreamFilters) : DetailIntent()
+    data class DownloadStream(val option: StreamOption) : DetailIntent()
+    data object ConfirmLargeDownload : DetailIntent()
+    data object DismissLargeDownload : DetailIntent()
 }

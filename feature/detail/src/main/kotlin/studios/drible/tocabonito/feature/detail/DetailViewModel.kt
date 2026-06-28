@@ -9,11 +9,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import studios.drible.tocabonito.core.domain.model.DownloadItem
+import studios.drible.tocabonito.core.domain.model.DownloadPriority
+import studios.drible.tocabonito.core.domain.model.DownloadState
 import studios.drible.tocabonito.core.domain.model.MediaType
+import studios.drible.tocabonito.core.domain.model.StreamOption
 import studios.drible.tocabonito.core.domain.repository.CatalogRepository
+import studios.drible.tocabonito.core.domain.repository.DownloadEnqueuer
+import studios.drible.tocabonito.core.domain.repository.DownloadRepository
 import studios.drible.tocabonito.core.domain.repository.FavoritesRepository
 import studios.drible.tocabonito.core.domain.repository.StreamRepository
 import studios.drible.tocabonito.feature.detail.model.StreamFilters
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,6 +29,8 @@ class DetailViewModel @Inject constructor(
     private val catalogRepository: CatalogRepository,
     private val streamRepository: StreamRepository,
     private val favoritesRepository: FavoritesRepository,
+    private val downloadRepository: DownloadRepository,
+    private val downloadEnqueuer: DownloadEnqueuer,
 ) : ViewModel() {
 
     private val mediaId: String = checkNotNull(savedStateHandle["mediaId"])
@@ -95,6 +104,9 @@ class DetailViewModel @Inject constructor(
             is DetailIntent.SelectEpisode -> selectEpisode(intent)
             is DetailIntent.DismissResolvedLink -> dismissResolvedLink()
             is DetailIntent.UpdateFilters -> updateFilters(intent.filters)
+            is DetailIntent.DownloadStream -> downloadStream(intent.option)
+            is DetailIntent.ConfirmLargeDownload -> confirmLargeDownload()
+            is DetailIntent.DismissLargeDownload -> dismissLargeDownload()
         }
     }
 
@@ -146,10 +158,100 @@ class DetailViewModel @Inject constructor(
         updateSuccess { copy(filters = filters) }
     }
 
+    private fun downloadStream(option: StreamOption) {
+        val sizeBytes = parseSizeToBytes(option.size)
+        if (sizeBytes > TWO_GB_BYTES) {
+            updateSuccess { copy(pendingLargeDownload = option) }
+        } else {
+            executeDownload(option)
+        }
+    }
+
+    private fun confirmLargeDownload() {
+        val current = _state.value as? DetailUiState.Success ?: return
+        val option = current.pendingLargeDownload ?: return
+        updateSuccess { copy(pendingLargeDownload = null) }
+        executeDownload(option)
+    }
+
+    private fun dismissLargeDownload() {
+        updateSuccess { copy(pendingLargeDownload = null) }
+    }
+
+    private fun executeDownload(option: StreamOption) {
+        val current = _state.value as? DetailUiState.Success ?: return
+        val downloadId = UUID.randomUUID().toString()
+
+        updateSuccess {
+            copy(downloadStates = downloadStates + (option.id to DownloadState.RESOLVING))
+        }
+
+        viewModelScope.launch {
+            try {
+                val link = streamRepository.resolveStream(option)
+                val item = DownloadItem(
+                    id = downloadId,
+                    mediaId = current.mediaItem.id,
+                    episodeId = null,
+                    seasonNumber = null,
+                    episodeNumber = null,
+                    title = current.mediaItem.title,
+                    posterPath = current.mediaItem.posterPath,
+                    backdropPath = current.mediaItem.backdropPath,
+                    mediaType = mediaType,
+                    quality = option.quality,
+                    source = option.metadata.source ?: "Unknown",
+                    codec = option.metadata.codec ?: "Unknown",
+                    state = DownloadState.QUEUED,
+                    progress = 0.0,
+                    bytesWritten = 0L,
+                    totalBytes = link.fileSize.toLong(),
+                    estimatedBytes = parseSizeToBytes(option.size),
+                    localFilePath = null,
+                    fileExtension = link.fileName.substringAfterLast('.', "mkv"),
+                    dateQueued = System.currentTimeMillis(),
+                    dateCompleted = null,
+                    failureCount = 0,
+                    lastError = null,
+                    priority = DownloadPriority.USER_INITIATED,
+                    allowedOnCellular = false,
+                    speedBytesPerSecond = null,
+                )
+                downloadRepository.save(item)
+                downloadEnqueuer.enqueue(downloadId)
+                updateSuccess {
+                    copy(downloadStates = downloadStates + (option.id to DownloadState.QUEUED))
+                }
+            } catch (e: Exception) {
+                updateSuccess {
+                    copy(downloadStates = downloadStates + (option.id to DownloadState.FAILED))
+                }
+            }
+        }
+    }
+
     private inline fun updateSuccess(reducer: DetailUiState.Success.() -> DetailUiState.Success) {
         val current = _state.value
         if (current is DetailUiState.Success) {
             _state.value = current.reducer()
+        }
+    }
+
+    companion object {
+        internal const val TWO_GB_BYTES = 2L * 1024 * 1024 * 1024
+
+        internal fun parseSizeToBytes(size: String): Long {
+            val parts = size.trim().split(" ", limit = 2)
+            if (parts.size != 2) return 0L
+            val number = parts[0].toDoubleOrNull() ?: return 0L
+            val multiplier = when (parts[1].uppercase()) {
+                "KB" -> 1024L
+                "MB" -> 1024L * 1024
+                "GB" -> 1024L * 1024 * 1024
+                "TB" -> 1024L * 1024 * 1024 * 1024
+                else -> 1L
+            }
+            return (number * multiplier).toLong()
         }
     }
 }
