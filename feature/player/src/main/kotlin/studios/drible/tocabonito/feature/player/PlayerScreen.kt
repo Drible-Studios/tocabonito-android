@@ -72,8 +72,7 @@ fun PlayerScreen(
         ExoPlayer.Builder(context).build().also { exoPlayer ->
             if (state.streamUrl.isNotEmpty()) {
                 exoPlayer.setMediaItem(MediaItem.fromUri(Uri.parse(state.streamUrl)))
-                exoPlayer.prepare()
-                exoPlayer.playWhenReady = true
+                // Don't prepare here — surface must be set first via AndroidView.factory
             }
         }
     }
@@ -189,11 +188,15 @@ fun PlayerScreen(
                 }
             },
     ) {
-        // Video surface using SurfaceView; avoids media3-ui dependency (SSL proxy issue)
+        // Video surface — set before prepare() so decoder has a valid surface
         AndroidView(
             factory = { ctx ->
                 SurfaceView(ctx).also { surfaceView ->
                     player.setVideoSurfaceView(surfaceView)
+                    if (state.streamUrl.isNotEmpty()) {
+                        player.prepare()
+                        player.playWhenReady = true
+                    }
                 }
             },
             modifier = Modifier.fillMaxSize(),
