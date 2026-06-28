@@ -64,8 +64,19 @@ class FakeProgressSyncService : ProgressSyncService {
 
 class FakeCloudAccountProvider : CloudAccountProvider {
     var accountStatus: CloudAccountStatus = CloudAccountStatus.AVAILABLE
+    val signedIn = MutableStateFlow(false)
+    val name = MutableStateFlow<String?>(null)
+
+    override val isSignedIn: Flow<Boolean> = signedIn
+    override val displayName: Flow<String?> = name
+    override val currentUid: String? get() = if (signedIn.value) "fake-uid" else null
 
     override suspend fun accountStatus(): CloudAccountStatus = this.accountStatus
+
+    override suspend fun signOut() {
+        signedIn.value = false
+        name.value = null
+    }
 }
 
 class FakeSyncStatusProvider : SyncStatusProvider {
