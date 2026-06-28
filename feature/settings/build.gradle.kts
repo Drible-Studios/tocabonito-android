@@ -18,6 +18,8 @@ dependencies {
     testImplementation(libs.coroutines.test)
     testImplementation(libs.kotest.assertions)
     testImplementation(libs.ktor.client.mock)
+    testImplementation(libs.ktor.client.content.negotiation)
+    testImplementation(libs.ktor.serialization.json)
 }
 
 tasks.withType<Test> { useJUnitPlatform() }

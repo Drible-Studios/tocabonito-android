@@ -7,7 +7,6 @@ import app.cash.turbine.test
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -18,16 +17,16 @@ class ApiKeyStoreTest {
     @TempDir
     lateinit var tempDir: File
 
-    private fun createTestDataStore(testScope: TestScope): DataStore<Preferences> {
+    private fun TestScope.createTestDataStore(): DataStore<Preferences> {
         return PreferenceDataStoreFactory.create(
-            scope = testScope,
-            produceFile = { File(tempDir, "test_api_keys.preferences_pb") },
+            scope = backgroundScope,
+            produceFile = { File(tempDir, "test_api_keys_${System.nanoTime()}.preferences_pb") },
         )
     }
 
     @Test
     fun `apiKey initially emits null`() = runTest {
-        val store = ApiKeyStore(createTestDataStore(this))
+        val store = ApiKeyStore(createTestDataStore())
         store.apiKey.test {
             awaitItem().shouldBeNull()
         }
@@ -35,7 +34,7 @@ class ApiKeyStoreTest {
 
     @Test
     fun `save persists key`() = runTest {
-        val store = ApiKeyStore(createTestDataStore(this))
+        val store = ApiKeyStore(createTestDataStore())
         store.save("my-secret-key")
         store.apiKey.test {
             awaitItem() shouldBe "my-secret-key"
@@ -44,7 +43,7 @@ class ApiKeyStoreTest {
 
     @Test
     fun `clear removes key`() = runTest {
-        val store = ApiKeyStore(createTestDataStore(this))
+        val store = ApiKeyStore(createTestDataStore())
         store.save("my-secret-key")
         store.clear()
         store.apiKey.test {
@@ -54,7 +53,7 @@ class ApiKeyStoreTest {
 
     @Test
     fun `effectiveKey returns stored key when present`() = runTest {
-        val store = ApiKeyStore(createTestDataStore(this))
+        val store = ApiKeyStore(createTestDataStore())
         store.save("stored-key")
         store.effectiveKey() shouldBe "stored-key"
     }

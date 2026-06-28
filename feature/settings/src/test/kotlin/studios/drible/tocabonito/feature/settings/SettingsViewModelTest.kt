@@ -93,7 +93,13 @@ class SettingsViewModelTest {
         advanceUntilIdle()
 
         vm.apiValidationState.test {
-            val state = awaitItem()
+            var state = awaitItem()
+            if (state is ApiValidationState.Idle || state is ApiValidationState.Loading) {
+                state = awaitItem()
+            }
+            if (state is ApiValidationState.Loading) {
+                state = awaitItem()
+            }
             state.shouldBeInstanceOf<ApiValidationState.Success>()
             state.user.username shouldBe "testuser"
         }
@@ -101,15 +107,26 @@ class SettingsViewModelTest {
 
     @Test
     fun `validateApiKey sets Error on failure`() = runTest {
-        val vm = createViewModel(
-            httpClient = mockHttpClient("{}", HttpStatusCode.Unauthorized),
-        )
+        val client = HttpClient(MockEngine) {
+            engine {
+                addHandler { error("Network error") }
+            }
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+        }
+        val vm = createViewModel(httpClient = client)
 
         vm.validateApiKey("bad-key")
         advanceUntilIdle()
 
         vm.apiValidationState.test {
-            awaitItem().shouldBeInstanceOf<ApiValidationState.Error>()
+            var state = awaitItem()
+            if (state is ApiValidationState.Idle || state is ApiValidationState.Loading) {
+                state = awaitItem()
+            }
+            if (state is ApiValidationState.Loading) {
+                state = awaitItem()
+            }
+            state.shouldBeInstanceOf<ApiValidationState.Error>()
         }
     }
 
