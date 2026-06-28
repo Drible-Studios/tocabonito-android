@@ -1,7 +1,10 @@
 package studios.drible.tocabonito.feature.settings
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,28 +16,52 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import studios.drible.tocabonito.core.data.preferences.TorrentioPreferences
 import studios.drible.tocabonito.core.domain.service.SyncStatus
 import studios.drible.tocabonito.core.ui.theme.LocalThemePalette
+import studios.drible.tocabonito.core.ui.theme.ThemePalette
 
 @Composable
 fun SettingsScreen(
@@ -45,6 +72,10 @@ fun SettingsScreen(
     val currentTheme by viewModel.themeProvider.selectedTheme.collectAsState()
     val syncStatus by viewModel.syncStatus.collectAsStateWithLifecycle()
     val dataPortabilityState by viewModel.dataPortabilityState.collectAsStateWithLifecycle()
+    val apiValidationState by viewModel.apiValidationState.collectAsStateWithLifecycle()
+    val storedApiKey by viewModel.storedApiKey.collectAsStateWithLifecycle()
+    val torrentioProviders by viewModel.torrentioProviders.collectAsStateWithLifecycle()
+    val torrentioLanguage by viewModel.torrentioLanguage.collectAsStateWithLifecycle()
 
     // Show export result dialog
     if (dataPortabilityState is DataPortabilityState.ExportReady) {
@@ -128,6 +159,35 @@ fun SettingsScreen(
         HorizontalDivider(color = palette.textTertiary.copy(alpha = 0.2f))
         Spacer(Modifier.height(16.dp))
 
+        // — Real-Debrid section —
+        SettingsSectionHeader(title = "Real-Debrid", palette = palette)
+        RealDebridSection(
+            storedApiKey = storedApiKey,
+            validationState = apiValidationState,
+            palette = palette,
+            onValidate = { viewModel.validateApiKey(it) },
+            onSave = { viewModel.saveApiKey(it) },
+            onClear = { viewModel.clearApiKey() },
+        )
+
+        Spacer(Modifier.height(16.dp))
+        HorizontalDivider(color = palette.textTertiary.copy(alpha = 0.2f))
+        Spacer(Modifier.height(16.dp))
+
+        // — Torrentio Advanced section —
+        SettingsSectionHeader(title = "Torrentio Advanced", palette = palette)
+        TorrentioSection(
+            providers = torrentioProviders,
+            language = torrentioLanguage,
+            palette = palette,
+            onProvidersChange = { viewModel.updateProviders(it) },
+            onLanguageChange = { viewModel.updateLanguage(it) },
+        )
+
+        Spacer(Modifier.height(16.dp))
+        HorizontalDivider(color = palette.textTertiary.copy(alpha = 0.2f))
+        Spacer(Modifier.height(16.dp))
+
         // — Account section —
         SettingsSectionHeader(title = "Account", palette = palette)
         SettingsRow(
@@ -183,9 +243,172 @@ fun SettingsScreen(
 }
 
 @Composable
+private fun RealDebridSection(
+    storedApiKey: String?,
+    validationState: ApiValidationState,
+    palette: ThemePalette,
+    onValidate: (String) -> Unit,
+    onSave: (String) -> Unit,
+    onClear: () -> Unit,
+) {
+    var apiKeyInput by remember(storedApiKey) { mutableStateOf(storedApiKey ?: "") }
+
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.Key, contentDescription = null, tint = palette.accent)
+            Spacer(Modifier.width(12.dp))
+            Text("API Key", color = palette.textPrimary)
+        }
+        Spacer(Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = apiKeyInput,
+            onValueChange = { apiKeyInput = it },
+            label = { Text("Real-Debrid API Key") },
+            visualTransformation = PasswordVisualTransformation(),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(8.dp))
+
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = { onValidate(apiKeyInput) },
+                enabled = apiKeyInput.isNotBlank() && validationState !is ApiValidationState.Loading,
+                colors = ButtonDefaults.buttonColors(containerColor = palette.accent),
+            ) {
+                Text("Validate")
+            }
+            Button(
+                onClick = { onSave(apiKeyInput) },
+                enabled = apiKeyInput.isNotBlank(),
+                colors = ButtonDefaults.buttonColors(containerColor = palette.accent),
+            ) {
+                Text("Save")
+            }
+            OutlinedButton(onClick = {
+                onClear()
+                apiKeyInput = ""
+            }) {
+                Icon(Icons.Default.Clear, contentDescription = null)
+                Spacer(Modifier.width(4.dp))
+                Text("Clear")
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        when (validationState) {
+            is ApiValidationState.Loading -> {
+                CircularProgressIndicator(color = palette.accent)
+            }
+            is ApiValidationState.Success -> {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = palette.cardBackground),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(Modifier.padding(12.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Check, contentDescription = null, tint = palette.accent)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Valid", color = palette.accent, style = MaterialTheme.typography.labelMedium)
+                        }
+                        Spacer(Modifier.height(4.dp))
+                        Text("User: ${validationState.user.username}", color = palette.textPrimary)
+                        Text("Email: ${validationState.user.email}", color = palette.textSecondary, style = MaterialTheme.typography.bodySmall)
+                        Text("Type: ${validationState.user.type}", color = palette.textSecondary, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
+            is ApiValidationState.Error -> {
+                Text(
+                    text = "❌ ${validationState.message}",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            is ApiValidationState.Idle -> { /* no-op */ }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@Composable
+private fun TorrentioSection(
+    providers: List<String>,
+    language: String,
+    palette: ThemePalette,
+    onProvidersChange: (List<String>) -> Unit,
+    onLanguageChange: (String) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.VideoLibrary, contentDescription = null, tint = palette.accent)
+            Spacer(Modifier.width(12.dp))
+            Text("Providers", color = palette.textPrimary)
+        }
+        Spacer(Modifier.height(8.dp))
+
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            TorrentioPreferences.DEFAULT_PROVIDERS.forEach { provider ->
+                val selected = provider in providers
+                FilterChip(
+                    selected = selected,
+                    onClick = {
+                        val updated = if (selected) providers - provider else providers + provider
+                        onProvidersChange(updated)
+                    },
+                    label = { Text(provider) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = palette.accent.copy(alpha = 0.2f),
+                        selectedLabelColor = palette.accent,
+                    ),
+                )
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        Text("Language", color = palette.textPrimary)
+        Spacer(Modifier.height(4.dp))
+
+        var expanded by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = it },
+        ) {
+            OutlinedTextField(
+                value = language.replaceFirstChar { it.uppercase() },
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                TorrentioPreferences.AVAILABLE_LANGUAGES.forEach { lang ->
+                    DropdownMenuItem(
+                        text = { Text(lang.replaceFirstChar { it.uppercase() }) },
+                        onClick = {
+                            onLanguageChange(lang)
+                            expanded = false
+                        },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun SettingsSectionHeader(
     title: String,
-    palette: studios.drible.tocabonito.core.ui.theme.ThemePalette,
+    palette: ThemePalette,
 ) {
     Text(
         text = title.uppercase(),
@@ -200,7 +423,7 @@ private fun SettingsRow(
     icon: ImageVector,
     label: String,
     subtitle: String,
-    palette: studios.drible.tocabonito.core.ui.theme.ThemePalette,
+    palette: ThemePalette,
     onClick: (() -> Unit)?,
 ) {
     val modifier = if (onClick != null) {
