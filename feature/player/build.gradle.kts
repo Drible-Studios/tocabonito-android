@@ -13,6 +13,7 @@ dependencies {
     implementation(libs.media3.session)
     implementation(libs.compose.icons.extended)
 
+    testImplementation(project(":core:testing"))
     testImplementation(libs.junit5.api)
     testRuntimeOnly(libs.junit5.engine)
     testImplementation(libs.junit5.launcher)

@@ -14,6 +14,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import studios.drible.tocabonito.core.testing.FakeProgressRepository
+import studios.drible.tocabonito.core.testing.FakeStreamRepository
+import studios.drible.tocabonito.core.testing.FakeSubtitleRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PlayerViewModelTest {
@@ -35,6 +37,8 @@ class PlayerViewModelTest {
     ) = PlayerViewModel(
         savedStateHandle = SavedStateHandle(),
         progressRepository = progressRepository,
+        subtitleRepository = FakeSubtitleRepository(),
+        streamRepository = FakeStreamRepository(),
     )
 
     @Test
