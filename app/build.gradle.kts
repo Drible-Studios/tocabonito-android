@@ -42,6 +42,7 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.datastore.preferences)
     implementation(libs.compose.icons.extended)
+    implementation(libs.splashscreen)
 
     implementation(libs.room.runtime)
     implementation(libs.ktor.client.core)

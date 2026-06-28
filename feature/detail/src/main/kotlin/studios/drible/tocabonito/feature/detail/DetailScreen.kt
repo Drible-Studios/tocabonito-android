@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -59,6 +60,7 @@ import studios.drible.tocabonito.feature.detail.model.StreamFilters
 @Composable
 fun DetailScreen(
     onNavigateToPlayer: (mediaId: String, streamUrl: String) -> Unit,
+    onNavigateToFormatGuide: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DetailViewModel = hiltViewModel(),
@@ -102,6 +104,7 @@ fun DetailScreen(
                     viewModel.onIntent(DetailIntent.SelectEpisode(season, episode))
                 },
                 onFiltersChanged = { viewModel.onIntent(DetailIntent.UpdateFilters(it)) },
+                onNavigateToFormatGuide = onNavigateToFormatGuide,
                 modifier = modifier,
             )
         }
@@ -117,6 +120,7 @@ private fun DetailContent(
     onStreamSelected: (studios.drible.tocabonito.core.domain.model.StreamOption) -> Unit,
     onEpisodeSelected: (season: Int, episode: Int) -> Unit,
     onFiltersChanged: (StreamFilters) -> Unit,
+    onNavigateToFormatGuide: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val palette = LocalThemePalette.current
@@ -257,15 +261,28 @@ private fun DetailContent(
 
                         Spacer(Modifier.height(8.dp))
 
-                        OutlinedButton(
-                            onClick = { showStreamSheet = true },
-                            shape = RoundedCornerShape(8.dp),
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(
-                                text = "Streams (${state.filteredStreams.size})",
-                                color = palette.textPrimary,
-                            )
+                            OutlinedButton(
+                                onClick = { showStreamSheet = true },
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Text(
+                                    text = "Streams (${state.filteredStreams.size})",
+                                    color = palette.textPrimary,
+                                )
+                            }
+
+                            IconButton(onClick = onNavigateToFormatGuide) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Info,
+                                    contentDescription = "Format guide",
+                                    tint = palette.textSecondary,
+                                )
+                            }
                         }
 
                         Spacer(Modifier.height(8.dp))

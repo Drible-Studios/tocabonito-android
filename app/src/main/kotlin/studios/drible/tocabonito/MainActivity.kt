@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import studios.drible.tocabonito.core.ui.theme.ThemeProvider
 import studios.drible.tocabonito.core.ui.theme.TocaBonitoTheme
@@ -20,12 +21,21 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var themeProvider: ThemeProvider
 
+    private var isDataReady = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        splashScreen.setKeepOnScreenCondition { !isDataReady }
 
         setContent {
             val theme by themeProvider.selectedTheme.collectAsState()
             val palette = theme.palette
+
+            LaunchedEffect(Unit) {
+                isDataReady = true
+            }
 
             LaunchedEffect(palette.isLight) {
                 enableEdgeToEdge(

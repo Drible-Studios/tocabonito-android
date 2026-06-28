@@ -29,6 +29,7 @@ fun TocaBonitoNavHost(
             },
         )
         detailGraph(
+            navController = navController,
             onNavigateToPlayer = { mediaId, streamUrl ->
                 navController.navigateToPlayer(mediaId, streamUrl)
             },
