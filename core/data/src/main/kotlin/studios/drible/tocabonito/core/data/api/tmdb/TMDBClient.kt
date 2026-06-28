@@ -31,7 +31,8 @@ class TMDBClient(
     }
 
     suspend fun details(id: String, type: String): MediaItem {
-        val response: TMDBMovieDetail = httpClient.get("$baseUrl/movie/$id") {
+        val endpoint = if (type == "series" || type == "tv") "tv" else "movie"
+        val response: TMDBMovieDetail = httpClient.get("$baseUrl/$endpoint/$id") {
             header("Authorization", "Bearer $apiKey")
         }.body()
         return response.toDomain()
@@ -78,7 +79,7 @@ private fun TMDBMediaResult.toDomain(): MediaItem {
     }
     val year = (releaseDate ?: firstAirDate)?.take(4)?.toIntOrNull() ?: 0
     return MediaItem(
-        id = "tt$id",
+        id = id.toString(),
         title = title ?: name ?: "",
         overview = overview,
         posterPath = posterPath,
@@ -91,13 +92,13 @@ private fun TMDBMediaResult.toDomain(): MediaItem {
 }
 
 private fun TMDBMovieDetail.toDomain(): MediaItem = MediaItem(
-    id = imdbId ?: "tt$id",
-    title = title,
+    id = id.toString(),
+    title = displayTitle,
     overview = overview,
     posterPath = posterPath,
     backdropPath = backdropPath,
-    mediaType = MediaType.MOVIE,
-    releaseYear = releaseDate?.take(4)?.toIntOrNull() ?: 0,
+    mediaType = if (name.isNotEmpty()) MediaType.SERIES else MediaType.MOVIE,
+    releaseYear = displayDate?.take(4)?.toIntOrNull() ?: 0,
     voteAverage = voteAverage,
     genreIds = genres.map { it.id },
 )

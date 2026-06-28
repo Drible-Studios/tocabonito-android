@@ -30,13 +30,18 @@ data class TMDBMovieDetail(
     val id: Int,
     @SerialName("imdb_id") val imdbId: String? = null,
     val title: String = "",
+    val name: String = "",
     val overview: String = "",
     @SerialName("poster_path") val posterPath: String? = null,
     @SerialName("backdrop_path") val backdropPath: String? = null,
     @SerialName("release_date") val releaseDate: String? = null,
+    @SerialName("first_air_date") val firstAirDate: String? = null,
     @SerialName("vote_average") val voteAverage: Double = 0.0,
     val genres: List<TMDBGenre> = emptyList(),
-)
+) {
+    val displayTitle: String get() = title.ifEmpty { name }
+    val displayDate: String? get() = releaseDate ?: firstAirDate
+}
 
 @Serializable
 data class TMDBGenre(val id: Int, val name: String)
