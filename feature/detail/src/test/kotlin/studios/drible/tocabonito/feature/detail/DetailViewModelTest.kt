@@ -17,6 +17,7 @@ import studios.drible.tocabonito.core.testing.FakeCatalogRepository
 import studios.drible.tocabonito.core.testing.FakeFavoritesRepository
 import studios.drible.tocabonito.core.testing.FakeStreamRepository
 import studios.drible.tocabonito.core.testing.TestFixtures
+import studios.drible.tocabonito.feature.detail.model.StreamFilters
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DetailViewModelTest {
@@ -223,6 +224,94 @@ class DetailViewModelTest {
                 isLoadingStreams shouldBe false
                 streams.first().quality shouldBe "1080p"
             }
+        }
+    }
+
+    @Test
+    fun `apply quality filter narrows stream list`() = runTest {
+        val item = TestFixtures.mediaItem(id = "tt123")
+        catalogRepo.detailsResult = item
+        streamRepo.streamsResult = listOf(
+            TestFixtures.streamOption(quality = "1080p", source = "BluRay"),
+            TestFixtures.streamOption(quality = "720p", source = "WebDL"),
+            TestFixtures.streamOption(quality = "4K", source = "BluRay"),
+        )
+
+        val vm = createViewModel()
+        vm.state.test {
+            awaitItem().shouldBeInstanceOf<DetailUiState.Loading>()
+            var lastSuccess: DetailUiState.Success? = null
+            while (lastSuccess == null || lastSuccess.isLoadingStreams) {
+                val s = awaitItem()
+                if (s is DetailUiState.Success) lastSuccess = s
+            }
+            lastSuccess!!.filteredStreams.size shouldBe 3
+
+            vm.onIntent(DetailIntent.UpdateFilters(StreamFilters(quality = "1080p")))
+            val filtered = awaitItem()
+            filtered.shouldBeInstanceOf<DetailUiState.Success>()
+            (filtered as DetailUiState.Success).apply {
+                filteredStreams.size shouldBe 1
+                filteredStreams.first().quality shouldBe "1080p"
+            }
+        }
+    }
+
+    @Test
+    fun `apply source filter narrows stream list`() = runTest {
+        val item = TestFixtures.mediaItem(id = "tt123")
+        catalogRepo.detailsResult = item
+        streamRepo.streamsResult = listOf(
+            TestFixtures.streamOption(quality = "1080p", source = "BluRay"),
+            TestFixtures.streamOption(quality = "720p", source = "WebDL"),
+            TestFixtures.streamOption(quality = "4K", source = "BluRay"),
+        )
+
+        val vm = createViewModel()
+        vm.state.test {
+            awaitItem().shouldBeInstanceOf<DetailUiState.Loading>()
+            var lastSuccess: DetailUiState.Success? = null
+            while (lastSuccess == null || lastSuccess.isLoadingStreams) {
+                val s = awaitItem()
+                if (s is DetailUiState.Success) lastSuccess = s
+            }
+
+            vm.onIntent(DetailIntent.UpdateFilters(StreamFilters(source = "WebDL")))
+            val filtered = awaitItem()
+            filtered.shouldBeInstanceOf<DetailUiState.Success>()
+            (filtered as DetailUiState.Success).apply {
+                filteredStreams.size shouldBe 1
+                filteredStreams.first().quality shouldBe "720p"
+            }
+        }
+    }
+
+    @Test
+    fun `clear filters restores full stream list`() = runTest {
+        val item = TestFixtures.mediaItem(id = "tt123")
+        catalogRepo.detailsResult = item
+        streamRepo.streamsResult = listOf(
+            TestFixtures.streamOption(quality = "1080p", source = "BluRay"),
+            TestFixtures.streamOption(quality = "720p", source = "WebDL"),
+        )
+
+        val vm = createViewModel()
+        vm.state.test {
+            awaitItem().shouldBeInstanceOf<DetailUiState.Loading>()
+            var lastSuccess: DetailUiState.Success? = null
+            while (lastSuccess == null || lastSuccess.isLoadingStreams) {
+                val s = awaitItem()
+                if (s is DetailUiState.Success) lastSuccess = s
+            }
+
+            vm.onIntent(DetailIntent.UpdateFilters(StreamFilters(quality = "1080p")))
+            val filtered = awaitItem()
+            (filtered as DetailUiState.Success).filteredStreams.size shouldBe 1
+
+            vm.onIntent(DetailIntent.UpdateFilters(StreamFilters.EMPTY))
+            val cleared = awaitItem()
+            cleared.shouldBeInstanceOf<DetailUiState.Success>()
+            (cleared as DetailUiState.Success).filteredStreams.size shouldBe 2
         }
     }
 }

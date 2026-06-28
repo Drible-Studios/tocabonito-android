@@ -32,6 +32,7 @@ object TestFixtures {
         source: String = "BluRay",
         codec: String = "H264",
         seeders: Int = 100,
+        languages: List<String> = listOf("EN"),
     ) = StreamOption(
         title = "Movie.2024.${quality}.${source}.${codec}",
         quality = quality,
@@ -41,7 +42,7 @@ object TestFixtures {
             codec = codec,
             hdr = null,
             source = source,
-            languages = listOf("EN"),
+            languages = languages,
             subtitles = emptyList()
         ),
         infoHash = "abc${quality}${source}",
