@@ -8,6 +8,14 @@ plugins {
 
 android {
     namespace = "studios.drible.tocabonito.core.data"
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    defaultConfig {
+        buildConfigField("String", "RD_API_KEY", "\"${project.findProperty("RD_API_KEY") ?: ""}\"")
+    }
 }
 
 room {
