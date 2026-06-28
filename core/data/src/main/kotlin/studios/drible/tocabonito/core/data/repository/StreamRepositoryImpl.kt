@@ -1,5 +1,8 @@
 package studios.drible.tocabonito.core.data.repository
 
+import io.ktor.client.HttpClient
+import io.ktor.client.request.head
+import io.ktor.client.statement.HttpResponse
 import studios.drible.tocabonito.core.data.api.realdebrid.RealDebridClient
 import studios.drible.tocabonito.core.data.api.torrentio.TorrentioClient
 import studios.drible.tocabonito.core.data.stream.StreamSorter
@@ -13,6 +16,7 @@ import javax.inject.Inject
 class StreamRepositoryImpl @Inject constructor(
     private val torrentioClient: TorrentioClient,
     private val realDebridClient: RealDebridClient,
+    private val httpClient: HttpClient,
 ) : StreamRepository {
 
     override suspend fun availableStreams(
@@ -65,7 +69,19 @@ class StreamRepositoryImpl @Inject constructor(
     }
 
     private suspend fun resolveViaRedirect(option: StreamOption): StreamLink {
-        return realDebridClient.unrestrict(option.resolverUrl!!)
+        val resolverUrl = option.resolverUrl!!
+        val response: HttpResponse = httpClient.head(resolverUrl)
+        val directUrl = response.call.request.url.toString()
+        val fileName = directUrl.substringAfterLast('/').substringBefore('?')
+            .let { java.net.URLDecoder.decode(it, "UTF-8") }
+        return StreamLink(
+            id = option.infoHash,
+            fileName = fileName,
+            fileSize = response.headers["Content-Length"]?.toLongOrNull()?.toInt() ?: 0,
+            hlsUrl = null,
+            directUrl = directUrl,
+            quality = StreamQuality.FULL,
+        )
     }
 
     private suspend fun resolveViaFullFlow(option: StreamOption): StreamLink {

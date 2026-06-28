@@ -30,6 +30,8 @@ Pattern: MVI (Model-View-Intent) with StateFlow. Fully reactive pipeline (Room â
 | RealDebrid | Bearer token in `Authorization` header | Stream resolution (magnet â†’ direct URL) |
 | OpenSubtitles/Stremio | No auth | External subtitles |
 
+**Network restriction:** Torrentio and Real-Debrid are BLOCKED on the dev Mac (Netskope corporate proxy). Use `/maria-ssh` or the Shield to test these endpoints. The Shield is on an unfiltered home network.
+
 ## Build
 
 ```bash

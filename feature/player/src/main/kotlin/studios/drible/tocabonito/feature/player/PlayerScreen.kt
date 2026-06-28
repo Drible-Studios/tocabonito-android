@@ -68,14 +68,7 @@ fun PlayerScreen(
     var hasSeekOnReady by remember { mutableStateOf(false) }
     var controlsHideJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
 
-    val player = remember(state.streamUrl) {
-        ExoPlayer.Builder(context).build().also { exoPlayer ->
-            if (state.streamUrl.isNotEmpty()) {
-                exoPlayer.setMediaItem(MediaItem.fromUri(Uri.parse(state.streamUrl)))
-                // Don't prepare here — surface must be set first via AndroidView.factory
-            }
-        }
-    }
+    val player = remember { ExoPlayer.Builder(context).build() }
 
     // Listen for playback state changes to seek to resume position and sync isPlaying
     DisposableEffect(player) {
@@ -104,6 +97,16 @@ fun PlayerScreen(
             }
 
             override fun onTracksChanged(tracks: Tracks) {
+                android.util.Log.w("TBPlayer", "onTracksChanged: ${tracks.groups.size} groups")
+                tracks.groups.forEachIndexed { i, group ->
+                    val type = when(group.type) { C.TRACK_TYPE_VIDEO -> "VIDEO"; C.TRACK_TYPE_AUDIO -> "AUDIO"; C.TRACK_TYPE_TEXT -> "TEXT"; else -> "OTHER(${group.type})" }
+                    android.util.Log.w("TBPlayer", "  group[$i] type=$type length=${group.length} selected=${group.isSelected}")
+                    for (t in 0 until group.length) {
+                        val f = group.getTrackFormat(t)
+                        android.util.Log.w("TBPlayer", "    track[$t] mime=${f.sampleMimeType} ${f.width}x${f.height} codecs=${f.codecs} supported=${group.isTrackSupported(t)}")
+                    }
+                }
+                android.util.Log.w("TBPlayer", "videoSurface=${player.videoSize.width}x${player.videoSize.height}")
                 val audioTracks = tracks.groups
                     .filter { it.type == C.TRACK_TYPE_AUDIO }
                     .flatMapIndexed { groupIdx, group ->
@@ -188,12 +191,38 @@ fun PlayerScreen(
                 }
             },
     ) {
-        // Video surface — set before prepare() so decoder has a valid surface
         AndroidView(
             factory = { ctx ->
-                SurfaceView(ctx).also { surfaceView ->
-                    player.setVideoSurfaceView(surfaceView)
-                    if (state.streamUrl.isNotEmpty()) {
+                SurfaceView(ctx).apply {
+                    holder.addCallback(object : android.view.SurfaceHolder.Callback {
+                        override fun surfaceCreated(holder: android.view.SurfaceHolder) {
+                            android.util.Log.w("TBPlayer", "surfaceCreated: valid=${holder.surface.isValid} url=${state.streamUrl.take(50)} playerState=${player.playbackState}")
+                            player.setVideoSurfaceHolder(holder)
+                            if (state.streamUrl.isNotEmpty() && player.playbackState == Player.STATE_IDLE) {
+                                android.util.Log.w("TBPlayer", "PREPARING from surfaceCreated")
+                                player.setMediaItem(MediaItem.fromUri(Uri.parse(state.streamUrl)))
+                                player.prepare()
+                                player.playWhenReady = true
+                            }
+                        }
+                        override fun surfaceChanged(holder: android.view.SurfaceHolder, format: Int, w: Int, h: Int) {
+                            android.util.Log.w("TBPlayer", "surfaceChanged: ${w}x${h}")
+                        }
+                        override fun surfaceDestroyed(holder: android.view.SurfaceHolder) {
+                            android.util.Log.w("TBPlayer", "surfaceDestroyed")
+                            player.clearVideoSurface()
+                        }
+                    })
+                }
+            },
+            update = { surfaceView ->
+                if (state.streamUrl.isNotEmpty() && player.playbackState == Player.STATE_IDLE) {
+                    val valid = surfaceView.holder.surface.isValid
+                    android.util.Log.w("TBPlayer", "update: surfaceValid=$valid url=${state.streamUrl.take(50)} playerState=${player.playbackState}")
+                    if (valid) {
+                        android.util.Log.w("TBPlayer", "PREPARING from update")
+                        player.setVideoSurfaceHolder(surfaceView.holder)
+                        player.setMediaItem(MediaItem.fromUri(Uri.parse(state.streamUrl)))
                         player.prepare()
                         player.playWhenReady = true
                     }
