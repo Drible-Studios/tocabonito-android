@@ -9,10 +9,12 @@ const val THEME_PICKER_ROUTE = "settings/theme"
 
 fun NavGraphBuilder.settingsGraph(
     navController: NavController,
+    onSignInClick: () -> Unit = {},
 ) {
     composable(SETTINGS_ROUTE) {
         SettingsScreen(
             onNavigateToThemePicker = { navController.navigate(THEME_PICKER_ROUTE) },
+            onSignInClick = onSignInClick,
         )
     }
     composable(THEME_PICKER_ROUTE) {

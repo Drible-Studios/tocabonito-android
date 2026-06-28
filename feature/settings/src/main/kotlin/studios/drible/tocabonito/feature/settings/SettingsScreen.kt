@@ -16,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.CloudOff
@@ -66,6 +67,7 @@ import studios.drible.tocabonito.core.ui.theme.ThemePalette
 @Composable
 fun SettingsScreen(
     onNavigateToThemePicker: () -> Unit,
+    onSignInClick: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val palette = LocalThemePalette.current
@@ -76,6 +78,8 @@ fun SettingsScreen(
     val storedApiKey by viewModel.storedApiKey.collectAsStateWithLifecycle()
     val torrentioProviders by viewModel.torrentioProviders.collectAsStateWithLifecycle()
     val torrentioLanguage by viewModel.torrentioLanguage.collectAsStateWithLifecycle()
+    val isSignedIn by viewModel.isSignedIn.collectAsStateWithLifecycle()
+    val displayName by viewModel.displayName.collectAsStateWithLifecycle()
 
     // Show export result dialog
     if (dataPortabilityState is DataPortabilityState.ExportReady) {
@@ -190,9 +194,42 @@ fun SettingsScreen(
 
         // — Account section —
         SettingsSectionHeader(title = "Account", palette = palette)
+        if (isSignedIn) {
+            SettingsRow(
+                icon = Icons.Default.AccountCircle,
+                label = displayName ?: "Signed In",
+                subtitle = "Google Account connected",
+                palette = palette,
+                onClick = null,
+            )
+            Spacer(Modifier.height(8.dp))
+            OutlinedButton(
+                onClick = { viewModel.signOut() },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Sign Out", color = palette.textPrimary)
+            }
+        } else {
+            SettingsRow(
+                icon = Icons.Default.CloudOff,
+                label = "Cloud Sync",
+                subtitle = "Sign in to sync across devices",
+                palette = palette,
+                onClick = null,
+            )
+            Spacer(Modifier.height(8.dp))
+            Button(
+                onClick = onSignInClick,
+                colors = ButtonDefaults.buttonColors(containerColor = palette.accent),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Sign in with Google")
+            }
+        }
+        Spacer(Modifier.height(4.dp))
         SettingsRow(
             icon = Icons.Default.CloudOff,
-            label = "Cloud Sync",
+            label = "Sync Status",
             subtitle = syncStatus.label(),
             palette = palette,
             onClick = null,
