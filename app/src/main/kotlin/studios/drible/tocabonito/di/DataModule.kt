@@ -1,6 +1,9 @@
 package studios.drible.tocabonito.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
@@ -19,11 +22,30 @@ import studios.drible.tocabonito.core.data.api.realdebrid.RealDebridClient
 import studios.drible.tocabonito.core.data.api.tmdb.TMDBClient
 import studios.drible.tocabonito.core.data.api.torrentio.TorrentioClient
 import studios.drible.tocabonito.core.data.db.TocaBonitoDatabase
+import studios.drible.tocabonito.core.data.preferences.ApiKeyStore
+import studios.drible.tocabonito.core.data.preferences.TorrentioPreferences
 import javax.inject.Singleton
+
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "tocabonito_settings")
 
 @Module
 @InstallIn(SingletonComponent::class)
 object DataModule {
+
+    @Provides
+    @Singleton
+    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        context.dataStore
+
+    @Provides
+    @Singleton
+    fun provideApiKeyStore(dataStore: DataStore<Preferences>): ApiKeyStore =
+        ApiKeyStore(dataStore)
+
+    @Provides
+    @Singleton
+    fun provideTorrentioPreferences(dataStore: DataStore<Preferences>): TorrentioPreferences =
+        TorrentioPreferences(dataStore)
 
     @Provides
     @Singleton
