@@ -1,11 +1,9 @@
 package studios.drible.tocabonito.core.data.sync
 
 import studios.drible.tocabonito.core.domain.service.SettingsSyncService
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class FirebaseSettingsSyncService @Inject constructor(
+
+class FirebaseSettingsSyncService(
     private val firestoreClient: FirestoreClient,
     private val authWrapper: FirebaseAuthWrapper,
     private val localSettings: LocalSettingsReadWriter,

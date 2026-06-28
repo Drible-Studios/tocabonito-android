@@ -4,11 +4,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import studios.drible.tocabonito.core.domain.service.CloudAccountProvider
 import studios.drible.tocabonito.core.domain.service.CloudAccountStatus
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class FirebaseAccountProvider @Inject constructor(
+
+class FirebaseAccountProvider(
     private val authWrapper: FirebaseAuthWrapper,
 ) : CloudAccountProvider {
 

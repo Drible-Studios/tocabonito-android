@@ -2,11 +2,9 @@ package studios.drible.tocabonito.core.data.sync
 
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class RealFirestoreClient @Inject constructor(
+
+class RealFirestoreClient(
     private val firestore: FirebaseFirestore,
 ) : FirestoreClient {
 

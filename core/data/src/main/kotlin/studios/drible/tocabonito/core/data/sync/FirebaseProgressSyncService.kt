@@ -2,11 +2,9 @@ package studios.drible.tocabonito.core.data.sync
 
 import studios.drible.tocabonito.core.domain.model.WatchProgress
 import studios.drible.tocabonito.core.domain.service.ProgressSyncService
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class FirebaseProgressSyncService @Inject constructor(
+
+class FirebaseProgressSyncService(
     private val firestoreClient: FirestoreClient,
     private val authWrapper: FirebaseAuthWrapper,
 ) : ProgressSyncService {

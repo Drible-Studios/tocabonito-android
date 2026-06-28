@@ -2,11 +2,9 @@ package studios.drible.tocabonito.core.data.sync
 
 import studios.drible.tocabonito.core.domain.model.MediaItem
 import studios.drible.tocabonito.core.domain.service.FavoritesSyncService
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class FirebaseFavoritesSyncService @Inject constructor(
+
+class FirebaseFavoritesSyncService(
     private val firestoreClient: FirestoreClient,
     private val authWrapper: FirebaseAuthWrapper,
 ) : FavoritesSyncService {
