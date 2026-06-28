@@ -242,7 +242,7 @@ private fun DetailContent(
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = palette.surfaceElevated,
-                                contentColor = palette.textPrimary,
+                                contentColor = if (palette.isLight) Color.White else palette.textPrimary,
                             ),
                             modifier = Modifier.fillMaxWidth(),
                         ) {
@@ -268,6 +268,9 @@ private fun DetailContent(
                             OutlinedButton(
                                 onClick = { showStreamSheet = true },
                                 shape = RoundedCornerShape(8.dp),
+                                border = ButtonDefaults.outlinedButtonBorder(enabled = true).copy(
+                                    brush = androidx.compose.ui.graphics.SolidColor(palette.textPrimary),
+                                ),
                                 modifier = Modifier.weight(1f),
                             ) {
                                 Text(

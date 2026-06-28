@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import studios.drible.tocabonito.core.ui.theme.LocalThemePalette
@@ -88,7 +89,7 @@ fun StreamFilterChips(
                     },
                     colors = FilterChipDefaults.filterChipColors(
                         containerColor = palette.cardBackground,
-                        labelColor = palette.textSecondary,
+                        labelColor = Color.White,
                     ),
                 )
             }
@@ -119,8 +120,8 @@ private fun FilterDropdownChip(
             colors = FilterChipDefaults.filterChipColors(
                 containerColor = palette.cardBackground,
                 selectedContainerColor = palette.accent.copy(alpha = 0.15f),
-                labelColor = palette.textSecondary,
-                selectedLabelColor = palette.accent,
+                labelColor = Color.White,
+                selectedLabelColor = if (palette.isLight) palette.cardBackground else palette.accent,
             ),
         )
 
