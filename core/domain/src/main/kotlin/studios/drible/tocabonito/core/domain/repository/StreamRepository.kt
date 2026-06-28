@@ -7,4 +7,5 @@ import studios.drible.tocabonito.core.domain.model.StreamOption
 interface StreamRepository {
     suspend fun availableStreams(imdbId: String, type: MediaType, season: Int?, episode: Int?): List<StreamOption>
     suspend fun resolveStream(option: StreamOption): StreamLink
+    suspend fun resolveTranscode(option: StreamOption): StreamLink
 }

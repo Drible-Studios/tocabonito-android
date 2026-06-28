@@ -1,0 +1,4 @@
+{
+  "apple": { "full": "https://real-debrid.com/transcode/apple_full.m3u8" },
+  "dash": { "full": "https://real-debrid.com/transcode/dash_full.mpd", "medium": "https://real-debrid.com/transcode/dash_medium.mpd" }
+}

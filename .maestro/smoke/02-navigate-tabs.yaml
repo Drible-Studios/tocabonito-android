@@ -1,0 +1,15 @@
+appId: studios.drible.tocabonito
+name: "Smoke: Navigate between tabs"
+---
+- launchApp
+- assertVisible: "Home"
+- tapOn: "Explore"
+- assertVisible: "Explore"
+- tapOn: "Search"
+- assertVisible: "Search"
+- tapOn: "Downloads"
+- assertVisible: "Downloads"
+- tapOn: "My List"
+- assertVisible: "My List"
+- tapOn: "Home"
+- assertVisible: "Home"
