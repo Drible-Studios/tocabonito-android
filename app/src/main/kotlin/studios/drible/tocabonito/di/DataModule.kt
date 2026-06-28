@@ -22,6 +22,9 @@ import studios.drible.tocabonito.core.data.api.realdebrid.RealDebridClient
 import studios.drible.tocabonito.core.data.api.opensubtitles.OpenSubtitlesClient
 import studios.drible.tocabonito.core.data.api.tmdb.TMDBClient
 import studios.drible.tocabonito.core.data.api.torrentio.TorrentioClient
+import studios.drible.tocabonito.core.data.api.torrentio.TorrentioConfig
+import studios.drible.tocabonito.core.data.api.torrentio.TorrentioConfigProvider
+import kotlinx.coroutines.flow.first
 import studios.drible.tocabonito.core.data.db.TocaBonitoDatabase
 import studios.drible.tocabonito.core.data.preferences.ApiKeyStore
 import studios.drible.tocabonito.core.data.preferences.TorrentioPreferences
@@ -76,8 +79,19 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideTorrentioClient(httpClient: HttpClient): TorrentioClient =
-        TorrentioClient(httpClient)
+    fun provideTorrentioClient(
+        httpClient: HttpClient,
+        torrentioPreferences: TorrentioPreferences,
+    ): TorrentioClient {
+        val configProvider = TorrentioConfigProvider {
+            val providers = torrentioPreferences.providers.first()
+            val language = torrentioPreferences.language.first()
+            val rdKey = BuildConfig.REAL_DEBRID_API_KEY
+            val configPath = "providers=${providers.joinToString(",")}|language=$language|realdebrid=$rdKey"
+            TorrentioConfig(configPath = configPath)
+        }
+        return TorrentioClient(httpClient, configProvider)
+    }
 
     @Provides
     @Singleton
