@@ -19,6 +19,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import studios.drible.tocabonito.BuildConfig
 import studios.drible.tocabonito.core.data.api.realdebrid.RealDebridClient
+import studios.drible.tocabonito.core.data.api.opensubtitles.OpenSubtitlesClient
 import studios.drible.tocabonito.core.data.api.tmdb.TMDBClient
 import studios.drible.tocabonito.core.data.api.torrentio.TorrentioClient
 import studios.drible.tocabonito.core.data.db.TocaBonitoDatabase
@@ -82,4 +83,9 @@ object DataModule {
     @Singleton
     fun provideRealDebridClient(httpClient: HttpClient): RealDebridClient =
         RealDebridClient(httpClient, BuildConfig.REAL_DEBRID_API_KEY)
+
+    @Provides
+    @Singleton
+    fun provideOpenSubtitlesClient(httpClient: HttpClient): OpenSubtitlesClient =
+        OpenSubtitlesClient(httpClient, BuildConfig.OPEN_SUBTITLES_API_KEY)
 }

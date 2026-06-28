@@ -10,6 +10,7 @@ class FakeStreamRepository : StreamRepository {
     var resolveResult: StreamLink? = null
     var transcodeResult: StreamLink? = null
     var shouldThrow: Exception? = null
+    var resolveTranscodeCallCount = 0
 
     override suspend fun availableStreams(
         imdbId: String,
@@ -27,6 +28,12 @@ class FakeStreamRepository : StreamRepository {
     }
 
     override suspend fun resolveTranscode(option: StreamOption): StreamLink {
+        shouldThrow?.let { throw it }
+        return transcodeResult ?: throw IllegalStateException("No transcode result configured")
+    }
+
+    override suspend fun resolveTranscode(torrentId: String): StreamLink {
+        resolveTranscodeCallCount++
         shouldThrow?.let { throw it }
         return transcodeResult ?: throw IllegalStateException("No transcode result configured")
     }

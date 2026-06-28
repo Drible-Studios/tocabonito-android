@@ -1,0 +1,35 @@
+{
+  "total_pages": 1,
+  "total_count": 2,
+  "page": 1,
+  "data": [
+    {
+      "id": "123456",
+      "type": "subtitle",
+      "attributes": {
+        "language": "pt-BR",
+        "download_count": 50000,
+        "hearing_impaired": false,
+        "fps": 23.976,
+        "files": [
+          { "file_id": 99001, "file_name": "Movie.2024.1080p.pob.srt" }
+        ],
+        "feature_details": { "imdb_id": 1234567 }
+      }
+    },
+    {
+      "id": "123457",
+      "type": "subtitle",
+      "attributes": {
+        "language": "pt-BR",
+        "download_count": 12000,
+        "hearing_impaired": true,
+        "fps": 23.976,
+        "files": [
+          { "file_id": 99002, "file_name": "Movie.2024.1080p.pob.HI.srt" }
+        ],
+        "feature_details": { "imdb_id": 1234567 }
+      }
+    }
+  ]
+}

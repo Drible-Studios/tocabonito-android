@@ -15,6 +15,7 @@ android {
 
         buildConfigField("String", "TMDB_API_KEY", "\"${project.findProperty("TMDB_API_KEY") ?: ""}\"")
         buildConfigField("String", "REAL_DEBRID_API_KEY", "\"${project.findProperty("REAL_DEBRID_API_KEY") ?: ""}\"")
+        buildConfigField("String", "OPEN_SUBTITLES_API_KEY", "\"${project.findProperty("OPEN_SUBTITLES_API_KEY") ?: ""}\"")
     }
 
     buildFeatures {

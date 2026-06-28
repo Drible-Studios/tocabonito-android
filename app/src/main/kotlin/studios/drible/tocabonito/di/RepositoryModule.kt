@@ -9,11 +9,13 @@ import studios.drible.tocabonito.core.data.repository.DownloadRepositoryImpl
 import studios.drible.tocabonito.core.data.repository.FavoritesRepositoryImpl
 import studios.drible.tocabonito.core.data.repository.ProgressRepositoryImpl
 import studios.drible.tocabonito.core.data.repository.StreamRepositoryImpl
+import studios.drible.tocabonito.core.data.repository.SubtitleRepositoryImpl
 import studios.drible.tocabonito.core.domain.repository.CatalogRepository
 import studios.drible.tocabonito.core.domain.repository.DownloadRepository
 import studios.drible.tocabonito.core.domain.repository.FavoritesRepository
 import studios.drible.tocabonito.core.domain.repository.ProgressRepository
 import studios.drible.tocabonito.core.domain.repository.StreamRepository
+import studios.drible.tocabonito.core.domain.repository.SubtitleRepository
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -33,4 +35,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindDownloadRepository(impl: DownloadRepositoryImpl): DownloadRepository
+
+    @Binds
+    abstract fun bindSubtitleRepository(impl: SubtitleRepositoryImpl): SubtitleRepository
 }
