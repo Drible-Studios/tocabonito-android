@@ -51,6 +51,16 @@ class SettingsViewModel @Inject constructor(
     val syncStatus: StateFlow<SyncStatus> = syncStatusProvider.observeStatus()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SyncStatus.Disabled)
 
+    val isSignedIn: StateFlow<Boolean> = cloudAccountProvider.isSignedIn
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    val displayName: StateFlow<String?> = cloudAccountProvider.displayName
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    fun signOut() {
+        viewModelScope.launch { cloudAccountProvider.signOut() }
+    }
+
     private val _dataPortabilityState = MutableStateFlow<DataPortabilityState>(DataPortabilityState.Idle)
     val dataPortabilityState: StateFlow<DataPortabilityState> = _dataPortabilityState
 
