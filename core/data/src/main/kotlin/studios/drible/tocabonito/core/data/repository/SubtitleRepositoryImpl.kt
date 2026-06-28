@@ -1,6 +1,7 @@
 package studios.drible.tocabonito.core.data.repository
 
 import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsChannel
@@ -14,7 +15,7 @@ import javax.inject.Inject
 class SubtitleRepositoryImpl @Inject constructor(
     private val openSubtitlesClient: OpenSubtitlesClient,
     private val downloadHttpClient: HttpClient,
-    private val context: Context,
+    @ApplicationContext private val context: Context,
 ) : SubtitleRepository {
 
     private val cacheDir: File
