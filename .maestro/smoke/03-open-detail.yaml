@@ -1,0 +1,9 @@
+appId: studios.drible.tocabonito
+name: "Smoke: Home screen content loads"
+---
+- launchApp
+- assertVisible: "Home"
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertNotVisible: "Error"
+- assertNotVisible: "Something went wrong"

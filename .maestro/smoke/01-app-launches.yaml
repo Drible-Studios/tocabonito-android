@@ -1,0 +1,7 @@
+appId: studios.drible.tocabonito
+name: "Smoke: App launches and home screen loads"
+---
+- launchApp
+- assertVisible: "Home"
+- assertVisible: "Explore"
+- assertVisible: "Search"
